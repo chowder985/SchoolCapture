@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/exceptiontable"
+        android:title="단축수업 설정"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/showexceptioned"
+        android:title="설정된 날짜 보기"
+        app:showAsAction="never"/>
+</menu>

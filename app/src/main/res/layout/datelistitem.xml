@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="10dp"
+    android:layout_marginTop="5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="10dp">
+        <TextView
+            android:id="@+id/startitem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="5/30"
+            android:textColor="#2f2f2f"
+            android:textSize="23dp"/>
+
+        <TextView
+            android:id="@+id/hipen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="  -  "
+            android:textColor="#2f2f2f"
+            android:visibility="visible"
+            android:textSize="23dp"/>
+
+        <TextView
+            android:id="@+id/enditem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="6/3"
+            android:textColor="#2f2f2f"
+            android:visibility="visible"
+            android:textSize="23dp"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="10dp">
+        <TextView
+            android:id="@+id/timeitem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:textColor="#2f2f2f"
+            android:text="45분 수업  "/>
+        <TextView
+            android:id="@+id/countitem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:textColor="#2f2f2f"
+            android:text="5교시"/>
+    </LinearLayout>
+
+
+</LinearLayout>

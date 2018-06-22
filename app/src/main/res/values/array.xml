@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="classcount">
+        <item> 1교시 </item>
+        <item> 2교시 </item>
+        <item> 3교시 </item>
+        <item> 4교시 </item>
+        <item> 5교시 </item>
+        <item> 6교시 </item>
+        <item> 7교시 </item>
+        <item> 8교시 </item>
+    </string-array>
+
+
+</resources>

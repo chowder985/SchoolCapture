@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">School Capture</string>
+    <string name="gallery_name">Gallery</string>
+    <string name="title_activity_picker">picker</string>
+</resources>
