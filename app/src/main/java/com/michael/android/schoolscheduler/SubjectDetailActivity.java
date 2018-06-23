@@ -65,8 +65,10 @@ public class SubjectDetailActivity extends AppCompatActivity {
     }
 
     public void saveToDB(View view){
+        String ori = subjectName;
         subjectDb.execSQL("update SUBJECT set subject = '"+subjectEditName.getText().toString()+"', teacher = '"+tName.getText().toString()+"', location = '"+tLocation.getText().toString()+"', email = '"+tEmail.getText().toString()+"', number = '"+tPhone.getText().toString()+"' where subject = '"+subjectName+"';");
         Cursor c2 = timetableDb.rawQuery("select * from TIMETABLE;", null);
+
         while(c2.moveToNext()){
             for(int i=2; i<=9; i++){
                 if(c2.getString(i)==subjectName){
@@ -99,7 +101,6 @@ public class SubjectDetailActivity extends AppCompatActivity {
                         default:
                             break;
                     }
-                    timetableDb.update("TIMETABLE", cv, "day=?", new String[]{String.valueOf(c2.getInt(1))});
                 }
             }
         }

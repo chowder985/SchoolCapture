@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 startActivity(intent);
                 return true;
             case R.id.donate:
-                Toast.makeText(this, "1만원 입금 되셨습니다. 감사합니다.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "하나은행 620-232984-409 김택서", Toast.LENGTH_LONG).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
         switch (menuItem.getItemId()){
-            case R.id.add_subject:
+            case R.id.add_subject://과목추가
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 LayoutInflater inflater = this.getLayoutInflater();
                 final View view = inflater.inflate(R.layout.dialog_subject, null);
@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 AlertDialog dialog = builder.create();
                 dialog.show();
                 return true;
-            case R.id.add_picture:
+            case R.id.add_picture://사진추가
 //                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 //                startActivityForResult(intent, 0);
                 Intent intent = new Intent();
@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {//사진받아오는곳
         super.onActivityResult(requestCode, resultCode, data);
 
             try {
