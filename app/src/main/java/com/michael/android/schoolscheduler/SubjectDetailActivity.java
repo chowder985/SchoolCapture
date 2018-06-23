@@ -8,14 +8,18 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class SubjectDetailActivity extends AppCompatActivity {
 
     SQLiteDatabase subjectDb, timetableDb, pictureDb;
     EditText subjectEditName, tName, tLocation, tEmail, tPhone;
     String subjectName;
+
+    TimetableDB timetableHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +47,7 @@ public class SubjectDetailActivity extends AppCompatActivity {
         SubjectDB helper = new SubjectDB(this);
         subjectDb = helper.getWritableDatabase();
 
-        TimetableDB timetableHelper = new TimetableDB(this);
+        timetableHelper = new TimetableDB(this);
         timetableDb = timetableHelper.getWritableDatabase();
 
         PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
@@ -71,6 +75,7 @@ public class SubjectDetailActivity extends AppCompatActivity {
 
         while(c2.moveToNext()){
             for(int i=2; i<=9; i++){
+<<<<<<< HEAD
                 if(c2.getString(i)==subjectName){
                     ContentValues cv = new ContentValues();
                     switch (i){
@@ -101,6 +106,10 @@ public class SubjectDetailActivity extends AppCompatActivity {
                         default:
                             break;
                     }
+=======
+                if(c2.getString(i) != null && c2.getString(i).equals(subjectName)){
+                    timetableHelper.update(c2.getInt(1), i-1, subjectEditName.getText().toString());
+>>>>>>> 2f40a043b448d175419d3ac887c0cfa3d52d2030
                 }
             }
         }
