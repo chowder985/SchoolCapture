@@ -62,19 +62,24 @@ public class TimetableDB extends SQLiteOpenHelper {
     }
 
 
-    public String getResult() {
+    public String[][] getResult() {
         // 읽기가 가능하게 DB 열기
         SQLiteDatabase db = getReadableDatabase();
-        String result = "";
-
+        String result[][] = new String[5][8];
+        int rowcount=0;
         // DB에 있는 데이터를 쉽게 처리하기 위해 Cursor를 사용하여 테이블에 있는 모든 데이터 출력
         Cursor cursor = db.rawQuery("SELECT * FROM TIMETABLE", null);
         while (cursor.moveToNext()) {
-            result += cursor.getString(0)
-                    + " : "
-                    + cursor.getString(1)
-                    + " | "
-                    + "\n";
+            result[rowcount][0] = cursor.getString(2);
+            result[rowcount][1] = cursor.getString(3);
+            result[rowcount][2] = cursor.getString(4);
+            result[rowcount][3] = cursor.getString(5);
+            result[rowcount][4] = cursor.getString(6);
+            result[rowcount][5] = cursor.getString(7);
+            result[rowcount][6] = cursor.getString(8);
+            result[rowcount][7] = cursor.getString(9);
+            rowcount+=1;
+
         }
 
         return result;

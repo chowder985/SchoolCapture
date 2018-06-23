@@ -10,9 +10,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/gradiant"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/gradiant"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity android:name=".MainActivity">
@@ -49,18 +49,16 @@
 
         <activity
             android:name=".Timetable"
-            android:label="TimeTable">
+            android:label="시간표">
         </activity>
 
         <activity
             android:name=".ExceptionHandler"
-            android:label="ExceptionHandler">
-
+            android:label="단축수업 설정">
         </activity>
 
         <activity android:name=".Exceptioneddate"
-            android:label="Exceptioneddate">
-
+            android:label="설정된 단축수업">
         </activity>
 
     </application>

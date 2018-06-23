@@ -1,6 +1,5 @@
 package com.michael.android.schoolscheduler;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,7 +11,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
-import android.widget.Toast;
 
 public class Timetable extends AppCompatActivity implements View.OnClickListener{
      Button timetableinput[][] = new Button[9][6];
@@ -88,18 +86,18 @@ public class Timetable extends AppCompatActivity implements View.OnClickListener
         timetableinput[8][3] = findViewById(R.id.x8y3);
         timetableinput[8][4] = findViewById(R.id.x8y4);
         timetableinput[8][5] = findViewById(R.id.x8y5);
+        TimetableDB timetableDB = new TimetableDB(this);
+        String currenttable[][] = timetableDB.getResult();
 
         for (int i=0; i <= 8; i++) {
             for (int j=0; j <= 5; j++) {
                 if (i == 0 || j == 0)
                     continue;
                 timetableinput[i][j].setOnClickListener(this);
+                timetableinput[i][j].setText(currenttable[j-1][i-1]);
                 //시간표DB에서 불러와 버튼 텍스트 설정
             }
         }
-
-
-
 
     }
 
