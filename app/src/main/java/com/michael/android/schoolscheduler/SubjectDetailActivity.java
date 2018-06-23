@@ -70,8 +70,8 @@ public class SubjectDetailActivity extends AppCompatActivity {
 
     public void saveToDB(View view){
         subjectDb.execSQL("update SUBJECT set subject = '"+subjectEditName.getText().toString()+"', teacher = '"+tName.getText().toString()+"', location = '"+tLocation.getText().toString()+"', email = '"+tEmail.getText().toString()+"', number = '"+tPhone.getText().toString()+"' where subject = '"+subjectName+"';");
-        Cursor c2 = timetableDb.rawQuery("select * from TIMETABLE;", null);
 
+        Cursor c2 = timetableDb.rawQuery("select * from TIMETABLE;", null);
         while(c2.moveToNext()){
             for(int i=2; i<=9; i++){
                 if(c2.getString(i) != null && c2.getString(i).equals(subjectName)){
@@ -79,6 +79,7 @@ public class SubjectDetailActivity extends AppCompatActivity {
                 }
             }
         }
+
         pictureDb.execSQL("update picture_data set subject = '"+subjectEditName.getText().toString()+"' where subject = '"+subjectName+"';");
         Intent intent = new Intent();
         intent.putExtra("changed_subject", subjectEditName.getText().toString());
