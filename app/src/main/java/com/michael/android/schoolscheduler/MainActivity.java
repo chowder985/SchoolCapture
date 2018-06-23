@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
@@ -28,6 +29,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,19 +49,19 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar)findViewById(R.id.my_toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
 
         SubjectDB helper = new SubjectDB(this);
         db = helper.getWritableDatabase();
 
-        subjectList = (ListView)findViewById(R.id.list);
+        subjectList = (ListView) findViewById(R.id.list);
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, subjects);
         subjectList.setAdapter(adapter);
 
         Cursor c1 = db.rawQuery("select subject from SUBJECT", null);
         subjects.clear();
-        for(int k=0; k<c1.getCount(); k++){
+        for (int k = 0; k < c1.getCount(); k++) {
             c1.moveToNext();
             String subject = c1.getString(0);
             subjects.add(subject);
@@ -80,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int position, long l) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("과목 삭제");
-                builder.setMessage(subjects.get(position)+" 과목을 삭제하시겠습니까?");
+                builder.setMessage(subjects.get(position) + " 과목을 삭제하시겠습니까?");
                 builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -97,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         });
     }
 
-    public void showPopup(View v){
+    public void showPopup(View v) {
         PopupMenu popup = new PopupMenu(this, v);
         popup.setOnMenuItemClickListener(this);
         MenuInflater inflater = popup.getMenuInflater();
@@ -113,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.set_schedule:
                 Intent intent = new Intent(this, Timetable.class);
                 startActivity(intent);
@@ -128,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
-        switch (menuItem.getItemId()){
+        switch (menuItem.getItemId()) {
             case R.id.add_subject://과목추가
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 LayoutInflater inflater = this.getLayoutInflater();
@@ -138,22 +140,22 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                         .setPositiveButton("추가", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                EditText subjectName = (EditText)view.findViewById(R.id.subject_name);
-                                EditText teacherName = (EditText)view.findViewById(R.id.subject_t);
-                                EditText teacherLocation = (EditText)view.findViewById(R.id.t_location);
-                                EditText teacherEmail = (EditText)view.findViewById(R.id.t_email);
-                                EditText teacherPhone = (EditText)view.findViewById(R.id.t_phone);
+                                EditText subjectName = (EditText) view.findViewById(R.id.subject_name);
+                                EditText teacherName = (EditText) view.findViewById(R.id.subject_t);
+                                EditText teacherLocation = (EditText) view.findViewById(R.id.t_location);
+                                EditText teacherEmail = (EditText) view.findViewById(R.id.t_email);
+                                EditText teacherPhone = (EditText) view.findViewById(R.id.t_phone);
 
-                                db.execSQL("insert into SUBJECT (subject, teacher, location, email, number) values ('"+
-                                        subjectName.getText().toString() +"', '"+
-                                        teacherName.getText().toString() +"', '"+
-                                        teacherLocation.getText().toString()+"', '"+
-                                        teacherEmail.getText().toString()+"', '"+
-                                        teacherPhone.getText().toString()+"');");
+                                db.execSQL("insert into SUBJECT (subject, teacher, location, email, number) values ('" +
+                                        subjectName.getText().toString() + "', '" +
+                                        teacherName.getText().toString() + "', '" +
+                                        teacherLocation.getText().toString() + "', '" +
+                                        teacherEmail.getText().toString() + "', '" +
+                                        teacherPhone.getText().toString() + "');");
 
                                 Cursor c1 = db.rawQuery("select subject from SUBJECT", null);
                                 subjects.clear();
-                                for(int k=0; k<c1.getCount(); k++){
+                                for (int k = 0; k < c1.getCount(); k++) {
                                     c1.moveToNext();
                                     String subject = c1.getString(0);
                                     subjects.add(subject);
@@ -183,59 +185,60 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {//사진받아오는곳
         super.onActivityResult(requestCode, resultCode, data);
 
-            try {
-                // When an Image is picked
-                    // Get the Image from data
-                if(requestCode == 0 && resultCode == RESULT_OK && data != null){
-                    String[] filePathColumn = { MediaStore.Images.Media.DATA };
-                    imagesEncodedList = new ArrayList<String>();
-                    if(data.getData()!=null){
+        try {
+            // When an Image is picked
+            // Get the Image from data
+            if (requestCode == 0 && resultCode == RESULT_OK && data != null) {//이미지를 고르면
+                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                imagesEncodedList = new ArrayList<String>();
+                if (data.getData() != null) {
 
-                        Uri mImageUri=data.getData();
+                    Uri mImageUri = data.getData();
 
-                        // Get the cursor
-                        Cursor cursor = getContentResolver().query(mImageUri,
-                                filePathColumn, null, null, null);
-                        // Move to first row
-                        cursor.moveToFirst();
+                    // Get the cursor
+                    Cursor cursor = getContentResolver().query(mImageUri,
+                            filePathColumn, null, null, null);
+                    // Move to first row
+                    cursor.moveToFirst();
 
-                        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                        imageEncoded  = cursor.getString(columnIndex);
-                        cursor.close();
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    imageEncoded = cursor.getString(columnIndex);
+                    cursor.close();
 
-                    } else {
-                        if (data.getClipData() != null) {
-                            ClipData mClipData = data.getClipData();
-                            ArrayList<Uri> mArrayUri = new ArrayList<Uri>();
-                            for (int i = 0; i < mClipData.getItemCount(); i++) {
+                } else {
+                    if (data.getClipData() != null) {
+                        ClipData mClipData = data.getClipData();
+                        ArrayList<Uri> mArrayUri = new ArrayList<Uri>();
+                        for (int i = 0; i < mClipData.getItemCount(); i++) {
 
-                                ClipData.Item item = mClipData.getItemAt(i);
-                                Uri uri = item.getUri();
-                                mArrayUri.add(uri);
-                                Log.d("image", mArrayUri.get(i).toString());
-                                // Get the cursor
-                                Cursor cursor = getContentResolver().query(uri, filePathColumn, null, null, null);
-                                // Move to first row
-                                cursor.moveToFirst();
+                            ClipData.Item item = mClipData.getItemAt(i);
+                            Uri uri = item.getUri();
+                            mArrayUri.add(uri);
+                            setImageonDB(mArrayUri.get(i).getPath());
+                            Log.d("image", mArrayUri.get(i).toString());
+                            // Get the cursor
+                            Cursor cursor = getContentResolver().query(uri, filePathColumn, null, null, null);
+                            // Move to first row
+                            cursor.moveToFirst();
 
-                                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                                imageEncoded = cursor.getString(columnIndex);
-                                imagesEncodedList.add(imageEncoded);
-                                cursor.close();
+                            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                            imageEncoded = cursor.getString(columnIndex);
+                            imagesEncodedList.add(imageEncoded);
+                            cursor.close();
 
-                            }
                         }
                     }
-                } else {
-                    Toast.makeText(this, "You haven't picked Image",
-                            Toast.LENGTH_LONG).show();
                 }
-            } catch (Exception e) {
-                Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
-                        .show();
+            } else {//이미지를 고르지 않으면
+                Toast.makeText(this, "You haven't picked Image",
+                        Toast.LENGTH_LONG).show();
             }
-            //Uri targetUri = data.getData();
-            //Bitmap bitmap;
+        } catch (Exception e) {
+            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
+                    .show();
+        }
+        //Uri targetUri = data.getData();
+        //Bitmap bitmap;
 //            try {
 //                bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(targetUri));
 //            } catch (FileNotFoundException e) {
@@ -249,11 +252,34 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
         Cursor c1 = db.rawQuery("select subject from SUBJECT", null);
         subjects.clear();
-        for(int k=0; k<c1.getCount(); k++){
+        for (int k = 0; k < c1.getCount(); k++) {
             c1.moveToNext();
             String subject = c1.getString(0);
             subjects.add(subject);
         }
         adapter.notifyDataSetChanged();
     }
+
+    public void setImageonDB(String loot)//통합 사진저장메소드
+    {
+        //날짜받음
+        ExifInterface exif = null;
+        try {
+            exif = new ExifInterface(loot);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "EXIF LOADING ERROR", Toast.LENGTH_SHORT).show();
+        }
+        String getdate = exif.TAG_DATETIME;
+        Toast.makeText(this, getdate, Toast.LENGTH_SHORT).show();
+
+        //요일변수 세팅
+        //예외처리DB검색
+        //교시 시간변수 세팅
+        //요일,교시,시간변수참조하여 시간표DB에서 과목검색
+        //사진DB에 추가
+
+
+    }
+
 }
