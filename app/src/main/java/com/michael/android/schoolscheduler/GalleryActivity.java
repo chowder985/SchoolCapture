@@ -2,6 +2,8 @@ package com.michael.android.schoolscheduler;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.Nullable;
@@ -26,11 +28,16 @@ import java.util.List;
 
 public class GalleryActivity extends AppCompatActivity {
 
+    ArrayList<Bitmap> subList;
+    ArrayList<GalleryItem> list;
+
     String subjectName;
     RecyclerView galleryList;
     GalleryAdapter galleryAdapter;
     LinearLayoutManager galleryLayout;
     Intent intentFromMain;
+
+    SQLiteDatabase pictureDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,17 +62,39 @@ public class GalleryActivity extends AppCompatActivity {
         }
         getSupportActionBar().setTitle(subjectName);
 
-        ArrayList<Bitmap> subList = new ArrayList<Bitmap>();
-        for(int i=0; i<10; i++){
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_sample);
-            subList.add(bitmap);
+        subList = new ArrayList<Bitmap>();
+        list = new ArrayList<GalleryItem>();
+        ArrayList<String> dateList = new ArrayList<String>();
+
+        PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
+        pictureDB = pictureDBHelper.getWritableDatabase();
+        Cursor c1 = pictureDB.rawQuery("select subject, image_data, image_date from picture_data", null);
+        while(c1.moveToNext()){
+            if(!dateList.contains(c1.getString(2))){
+                dateList.add(c1.getString(2));
+            }
+        }
+        c1.moveToFirst();
+        for(int i=0; i<dateList.size(); i++){
+            while(c1.moveToNext()){
+                if (c1.getString(0) == subjectName && c1.getString(2) == dateList.get(i)) {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(c1.getBlob(1), 0, c1.getBlob(1).length);
+                    subList.add(bitmap);
+                }
+            }
+            GalleryItem item = new GalleryItem(subList, dateList.get(i));
+            list.add(item);
+            c1.moveToFirst();
         }
 
-        ArrayList<GalleryItem> list = new ArrayList<GalleryItem>();
-        for(int i=0; i<5; i++){
-            GalleryItem item = new GalleryItem(subList, String.valueOf(i));
-            list.add(item);
-        }
+//        for(int i=0; i<10; i++){
+//            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_sample);
+//            subList.add(bitmap);
+//        }
+//        for(int i=0; i<5; i++){
+//            GalleryItem item = new GalleryItem(subList, String.valueOf(i));
+//            list.add(item);
+//        }
 
         galleryList = (RecyclerView) findViewById(R.id.gallery_list);
         galleryList.setHasFixedSize(false);

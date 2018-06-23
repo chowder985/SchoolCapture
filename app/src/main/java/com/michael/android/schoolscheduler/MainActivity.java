@@ -174,12 +174,12 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
         if(requestCode == 0 && resultCode == RESULT_OK){
             Uri targetUri = data.getData();
-            Bitmap bitmap;
-            try {
-                bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(targetUri));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+            //Bitmap bitmap;
+//            try {
+//                bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(targetUri));
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
         }
     }
 
