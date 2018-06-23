@@ -1,8 +1,10 @@
 package com.michael.android.schoolscheduler;
 
+import android.Manifest;
 import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -10,7 +12,10 @@ import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -192,14 +197,36 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             case R.id.add_picture://사진추가
 //                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 //                startActivityForResult(intent, 0);
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), 0);
+                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.MANAGE_DOCUMENTS}, 1);
+                }else {
+                    Intent intent = new Intent();
+                    intent.setType("image/*");
+                    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), 0);
+                }
                 return true;
             default:
                 return false;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Intent intent = new Intent();
+                    intent.setType("image/*");
+                    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    startActivityForResult(Intent.createChooser(intent, "Select Picture"), 0);
+                } else {
+                    //do something like displaying a message that he didn`t allow the app to access gallery and you wont be able to let him select from gallery
+                }
+                break;
         }
     }
 
@@ -214,21 +241,35 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
                 imagesEncodedList = new ArrayList<String>();
                 if (data.getData() != null) {//사진하나
-
                     Uri mImageUri = data.getData();
-                    setImageonDB(mImageUri.getPath());
+
+                    Cursor cursor = this.getContentResolver().query(mImageUri,
+                            null, null, null, null, null);
+                    // Move to first row
+                    cursor.moveToFirst();
+
+                    String displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                    cursor.close();
+
+                    Toast.makeText(this, displayName, Toast.LENGTH_SHORT).show();
+
+                    setImageonDB("/storage/emulated/0/DCIM/Camera/"+displayName);
 
                 } else {//사진여러개
                     if (data.getClipData() != null) {
                         ClipData mClipData = data.getClipData();
                         ArrayList<Uri> mArrayUri = new ArrayList<Uri>();
                         for (int i = 0; i < mClipData.getItemCount(); i++) {
-
                             ClipData.Item item = mClipData.getItemAt(i);
                             Uri uri = item.getUri();
                             mArrayUri.add(uri);
-                            setImageonDB(mArrayUri.get(i).getPath());
-
+                            Cursor cursor = this.getContentResolver().query(mArrayUri.get(i),
+                                    null, null, null, null, null);
+                            // Move to first row
+                            cursor.moveToFirst();
+                            String displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                            cursor.close();
+                            setImageonDB("/storage/emulated/0/DCIM/Camera/"+displayName);
                         }
                     }
                 }
@@ -268,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             e.printStackTrace();
             Toast.makeText(this, "EXIF LOADING ERROR", Toast.LENGTH_SHORT).show();
         }
-        String getdate = exif.TAG_DATETIME;
+        String getdate = exif.getAttribute(ExifInterface.TAG_DATETIME);
         Toast.makeText(this, getdate, Toast.LENGTH_SHORT).show();
 
         //요일변수 세팅
