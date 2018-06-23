@@ -34,7 +34,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
-    SQLiteDatabase db;
+    SQLiteDatabase db, timetableDb, pictureDB;
+    Cursor c2;
+    TimetableDB timetableDB;
+
     ListView subjectList;
     ArrayList<String> subjects = new ArrayList<String>();
     ArrayAdapter<String> adapter;
@@ -52,6 +55,12 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
         SubjectDB helper = new SubjectDB(this);
         db = helper.getWritableDatabase();
+
+        timetableDB = new TimetableDB(this);
+        timetableDb = timetableDB.getWritableDatabase();
+
+        PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
+        pictureDB = pictureDBHelper.getWritableDatabase();
 
         subjectList = (ListView)findViewById(R.id.list);
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, subjects);
@@ -75,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             }
         });
 
+        c2 = timetableDb.rawQuery("select * from TIMETABLE;", null);
         subjectList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int position, long l) {
@@ -84,6 +94,17 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        while(c2.moveToNext()){
+                            for(int k=2; k<=9; k++){
+                                if(c2.getString(k) != null && c2.getString(k).equals(subjects.get(position))){
+                                    timetableDB.update(c2.getInt(1), k-1, "");
+                                }
+                            }
+                        }
+                        c2.moveToFirst();
+
+                        pictureDB.execSQL("delete from picture_data where subject = '"+subjects.get(position)+"';");
+
                         String[] selectionArgs = {subjects.get(position)};
                         subjects.remove(position);
                         db.delete("SUBJECT", "subject LIKE ?", selectionArgs);
