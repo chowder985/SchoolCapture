@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,6 +34,10 @@ public class ExceptionHandler extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exception_handler);
+
+        Toolbar toolbar = (Toolbar)findViewById(R.id.my_toolbar);
+        setSupportActionBar(toolbar);
+
         start = findViewById(R.id.startdate);
         end = findViewById(R.id.enddate);
         save = findViewById(R.id.saveexception);
@@ -50,6 +55,7 @@ public class ExceptionHandler extends AppCompatActivity implements View.OnClickL
         start.setText(getTime);
         end.setText(getTime);
         count.setSelection(6);//7교시로 미리설정
+
 
     }
 
@@ -121,14 +127,18 @@ public class ExceptionHandler extends AppCompatActivity implements View.OnClickL
                 check = exceptionDB.overlap(i);
                 insertdate = intTOstring(i);
                 if(!check)
+                {
                     exceptionDB.insert(i, classcount, classtime, insertdate);
-
+                }
                 else if(check)
+                {
                     exceptionDB.update(i, classcount, classtime, insertdate);
+                }
+
                 i+=1;
             }while(i<=enddate);
 
-            Toast.makeText(this, "Exception updated", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "단축수업 추가됨", Toast.LENGTH_SHORT).show();
             finish();
         }
     }

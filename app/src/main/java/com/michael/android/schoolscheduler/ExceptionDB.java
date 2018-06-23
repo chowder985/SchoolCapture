@@ -22,7 +22,7 @@ public class ExceptionDB extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (newVersion == DATABASE_VERSION) {
-            db.execSQL("drop table tb_data");
+            db.execSQL("drop table EXCEPTIONDATE");
             onCreate(db);
         }
     }

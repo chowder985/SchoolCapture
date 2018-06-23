@@ -24,8 +24,8 @@ public class DatelistAdapter extends CursorAdapter implements View.OnClickListen
         end.setVisibility(View.INVISIBLE);
 
         start.setText(cursor.getString(cursor.getColumnIndex("dates")));
-        time.setText(cursor.getString(cursor.getColumnIndex("classtime")) + "분 수업  ");
-        count.setText(cursor.getString(cursor.getColumnIndex("count")) + "교시");
+        time.setText(cursor.getString(cursor.getColumnIndex("classtime")) + "분 수업");
+        count.setText(cursor.getString(cursor.getColumnIndex("count")) + "교시  ");
 
     }
 

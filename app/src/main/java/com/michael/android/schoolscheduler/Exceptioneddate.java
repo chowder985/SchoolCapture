@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,6 +25,9 @@ public class Exceptioneddate extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exceptioneddate);
 
+        Toolbar toolbar = (Toolbar)findViewById(R.id.my_toolbar);
+        setSupportActionBar(toolbar);
+
         list = findViewById(R.id.modifieddate);
         exceptionDB = new ExceptionDB(this);
         selectDB();
@@ -35,15 +39,10 @@ public class Exceptioneddate extends AppCompatActivity {
                 ExceptionDB exceptionDB = new ExceptionDB(getApplicationContext());
                 exceptionDB.delete(cursor.getInt(cursor.getColumnIndex("date")));
                 selectDB();
-                refresh();
             }
         });
     }
 
-    private void refresh()
-    {
-        dbAdapter.notifyDataSetChanged();
-    }
 
     private void selectDB(){
         db = exceptionDB.getWritableDatabase();
