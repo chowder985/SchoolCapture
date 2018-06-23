@@ -143,7 +143,7 @@ public class ExceptionHandler extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    public int dateTOint(String Sdate) {
+    public int dateTOint(String Sdate) {//2018-5-23
         String[] YMD = Sdate.split("-");
         int y, m, d;
         y = Integer.parseInt(YMD[0]);

@@ -58,9 +58,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         SubjectDB helper = new SubjectDB(this);
         db = helper.getWritableDatabase();
 
-<<<<<<< HEAD
         subjectList = (ListView) findViewById(R.id.list);
-=======
         timetableDB = new TimetableDB(this);
         timetableDb = timetableDB.getWritableDatabase();
 
@@ -68,7 +66,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         pictureDB = pictureDBHelper.getWritableDatabase();
 
         subjectList = (ListView)findViewById(R.id.list);
->>>>>>> a278fc7555bc34d0fe0c7bde09212353c050d6b7
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, subjects);
         subjectList.setAdapter(adapter);
 
@@ -216,21 +213,12 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             if (requestCode == 0 && resultCode == RESULT_OK && data != null) {//이미지를 고르면
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
                 imagesEncodedList = new ArrayList<String>();
-                if (data.getData() != null) {
+                if (data.getData() != null) {//사진하나
 
                     Uri mImageUri = data.getData();
+                    setImageonDB(mImageUri.getPath());
 
-                    // Get the cursor
-                    Cursor cursor = getContentResolver().query(mImageUri,
-                            filePathColumn, null, null, null);
-                    // Move to first row
-                    cursor.moveToFirst();
-
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    imageEncoded = cursor.getString(columnIndex);
-                    cursor.close();
-
-                } else {
+                } else {//사진여러개
                     if (data.getClipData() != null) {
                         ClipData mClipData = data.getClipData();
                         ArrayList<Uri> mArrayUri = new ArrayList<Uri>();
@@ -240,16 +228,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                             Uri uri = item.getUri();
                             mArrayUri.add(uri);
                             setImageonDB(mArrayUri.get(i).getPath());
-                            Log.d("image", mArrayUri.get(i).toString());
-                            // Get the cursor
-                            Cursor cursor = getContentResolver().query(uri, filePathColumn, null, null, null);
-                            // Move to first row
-                            cursor.moveToFirst();
-
-                            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                            imageEncoded = cursor.getString(columnIndex);
-                            imagesEncodedList.add(imageEncoded);
-                            cursor.close();
 
                         }
                     }
@@ -262,13 +240,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
                     .show();
         }
-        //Uri targetUri = data.getData();
-        //Bitmap bitmap;
-//            try {
-//                bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(targetUri));
-//            } catch (FileNotFoundException e) {
-//                e.printStackTrace();
-//            }
     }
 
     @Override
@@ -287,6 +258,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
     public void setImageonDB(String loot)//통합 사진저장메소드
     {
+        int m, y, d;
+        int classcount=7, classtime=50;
         //날짜받음
         ExifInterface exif = null;
         try {
@@ -301,9 +274,10 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         //요일변수 세팅
         //예외처리DB검색
         //교시 시간변수 세팅
+
+
         //요일,교시,시간변수참조하여 시간표DB에서 과목검색
         //사진DB에 추가
-
 
     }
 
