@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -36,6 +37,7 @@ public class ExceptionHandler extends AppCompatActivity implements View.OnClickL
         setContentView(R.layout.activity_exception_handler);
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.my_toolbar);
+        toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
         setSupportActionBar(toolbar);
 
         start = findViewById(R.id.startdate);

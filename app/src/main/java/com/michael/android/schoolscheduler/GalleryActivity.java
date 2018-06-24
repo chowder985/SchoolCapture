@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.provider.OpenableColumns;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -48,6 +50,7 @@ public class GalleryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_gallery);
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.gallery_toolbar);
+        toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
         setSupportActionBar(toolbar);
 
         ActionBar ab = getSupportActionBar();
@@ -71,7 +74,6 @@ public class GalleryActivity extends AppCompatActivity {
         PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
         pictureDB = pictureDBHelper.getWritableDatabase();
         Cursor c1 = pictureDB.rawQuery("select subject, image_location, image_date from picture_data", null);
-
 
         c1.moveToFirst();
         while(c1.moveToNext()){

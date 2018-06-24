@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ public class SubjectDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_subject_detail);
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.detail_toolbar);
+        toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
         setSupportActionBar(toolbar);
 
         ActionBar ab = getSupportActionBar();

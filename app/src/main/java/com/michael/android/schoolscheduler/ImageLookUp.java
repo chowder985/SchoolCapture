@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ public class ImageLookUp extends AppCompatActivity {
         setContentView(R.layout.activity_image_look_up);
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.image_toolbar);
+        toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
         setSupportActionBar(toolbar);
 
         ActionBar ab = getSupportActionBar();

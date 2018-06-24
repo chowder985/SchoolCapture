@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,17 +12,20 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.CursorLoader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -72,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
         setSupportActionBar(toolbar);
 
         SubjectDB helper = new SubjectDB(this);
@@ -257,22 +262,12 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             // When an Image is picked
             // Get the Image from data
             if (requestCode == 0 && resultCode == RESULT_OK && data != null) {//이미지를 고르면
-                String[] filePathColumn = {MediaStore.Images.Media.DATA};
                 imagesEncodedList = new ArrayList<String>();
                 if (data.getData() != null) {//사진하나
                     Uri mImageUri = data.getData();
-
-                    Cursor cursor = this.getContentResolver().query(mImageUri,
-                            null, null, null, null, null);
-                    // Move to first row
-                    cursor.moveToFirst();
-
-                    String displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                    cursor.close();
-
-                    //Toast.makeText(this, displayName, Toast.LENGTH_SHORT).show();
-
-                    setImageonDB("/storage/emulated/0/DCIM/camera/" + displayName, mImageUri,displayName);
+                    String path = getPathAPI19(this, mImageUri);
+                    Log.d("REAL2",path);
+                    setImageonDB(path, mImageUri);
 
                 } else {//사진여러개
                     if (data.getClipData() != null) {
@@ -282,13 +277,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                             ClipData.Item item = mClipData.getItemAt(i);
                             Uri uri = item.getUri();
                             mArrayUri.add(uri);
-                            Cursor cursor = this.getContentResolver().query(mArrayUri.get(i),
-                                    null, null, null, null, null);
-                            // Move to first row
-                            cursor.moveToFirst();
-                            String displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                            cursor.close();
-                            setImageonDB("/storage/emulated/0/DCIM/camera/" + displayName, mArrayUri.get(i),displayName);
+                            String path = getPathAPI19array(this, mArrayUri.get(i));
+                            setImageonDB(path, mArrayUri.get(i));
                         }
                     }
                 }
@@ -298,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
+            Toast.makeText(this, "Unable to load Image", Toast.LENGTH_LONG)
                     .show();
         }
     }
@@ -317,22 +307,25 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         adapter.notifyDataSetChanged();
     }
 
-    public void setImageonDB(String loot, Uri uri, String imagename) throws Exception//통합 사진저장메소드
+    public void setImageonDB(String loot, Uri uri) throws Exception//통합 사진저장메소드
     {
+        //loot input format /storage/emulated/0/DCIM/Camera/20180611_161245.jpg
         int m, y, d;
         int takenh, takenm, takens;
-        int day = 1, classcount = 7, classtime = 50;
+        int day, classcount = 7, classtime = 50;
         String thatsubject = "";
+        String getdate = "";
+        int orientation = 0;
         //날짜받음
-        ExifInterface exif = null;
+        ExifInterface exif;
         try {
             exif = new ExifInterface(loot);
+            getdate = exif.getAttribute(ExifInterface.TAG_DATETIME);
+            orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "EXIF LOADING ERROR", Toast.LENGTH_SHORT).show();
         }
-        String getdate = exif.getAttribute(ExifInterface.TAG_DATETIME);
-        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
 
         String s[] = getdate.split(" ");//format 2018:06:23 20:13:21//날짜 시간 분리
         String date[] = s[0].split(":");//날짜 분리저장
@@ -368,42 +361,44 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 thatsubject = timetableDB.getsubjectname(day, i);
             }
         }
-        searchTimetableDB(thatsubject, uri, s[0], orientation, imagename);//사진DB에 추가
+        searchTimetableDB(thatsubject, uri, s[0], orientation, loot);//사진DB에 추가
+        Log.d("CHECK", loot);
 
     }
 
-    public void searchTimetableDB(String subject, Uri uri, String date, int orientation, String imagename) {//
+
+    public void searchTimetableDB(String subject, Uri uri, String date, int orientation, String path) {//
         Bitmap image;
         try {
-            String savepath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/imagedatas/";
+            String inputpath[] = path.split("/");
+            String imagename = inputpath[inputpath.length];
+            String savepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/imagedatas/";
             image = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
             Bitmap rotated = rotateBitmap(image, orientation);
             PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
             File file_path;
-            try{
+            try {
                 file_path = new File(savepath);
-                if(!file_path.isDirectory()){
+                if (!file_path.isDirectory()) {
                     file_path.mkdirs();
                 }
-                FileOutputStream out = new FileOutputStream(savepath+imagename);
+                FileOutputStream out = new FileOutputStream(savepath + imagename);
                 rotated.compress(Bitmap.CompressFormat.JPEG, 100, out);
                 SQLiteDatabase db = pictureDBHelper.getWritableDatabase();
                 // DB에 입력한 값으로 행 추가
                 Cursor c1 = db.rawQuery("select * from picture_data", null);
-                while(c1.moveToNext())
-                {
-                    if(c1.getString(2).equals(savepath+imagename))
-                    {
+                while (c1.moveToNext()) {
+                    if (c1.getString(2).equals(savepath + imagename)) {
                         Toast.makeText(this, "image already exist", Toast.LENGTH_SHORT).show();
                         return;
                     }
                 }
-                pictureDBHelper.insert(savepath+imagename, date, subject);
+                pictureDBHelper.insert(savepath + imagename, date, subject);
                 out.close();
 
-            }catch(FileNotFoundException exception){
+            } catch (FileNotFoundException exception) {
                 Log.e("FileNotFoundException", exception.getMessage());
-            }catch(IOException exception){
+            } catch (IOException exception) {
                 Log.e("IOException", exception.getMessage());
             }
         } catch (FileNotFoundException e) {
@@ -569,5 +564,38 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         }
     }
 
+    public static String getPathAPI19(Context context, Uri uri) {
+        String filePath = "";
+        String fileId = DocumentsContract.getDocumentId(uri);
+        // Split at colon, use second item in the array
+        String id = fileId.split(":")[1];
+        String[] column = {MediaStore.Images.Media.DATA};
+        String selector = MediaStore.Images.Media._ID + "=?";
+        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                column, selector, new String[]{id}, null);
+        int columnIndex = cursor.getColumnIndex(column[0]);
+        if (cursor.moveToFirst()) {
+            filePath = cursor.getString(columnIndex);
+        }
+        cursor.close();
+        return filePath;
+    }
+
+    public static String getPathAPI19array(Context context, Uri uri) {
+        String filePath = "";
+        String fileId = DocumentsContract.getDocumentId(uri);
+        // Split at colon, use second item in the array
+        String id = fileId.split(":")[1];
+        String[] column = {MediaStore.Images.Media.DATA};
+        String selector = MediaStore.Images.Media._ID + "=?";
+        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                column, selector, new String[]{id}, null);
+        int columnIndex = cursor.getColumnIndex(column[0]);
+        if (cursor.moveToFirst()) {
+            filePath = cursor.getString(columnIndex);
+        }
+        cursor.close();
+        return filePath;
+    }
 
 }

@@ -2,6 +2,7 @@ package com.michael.android.schoolscheduler;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -26,6 +27,7 @@ public class Exceptioneddate extends AppCompatActivity {
         setContentView(R.layout.activity_exceptioneddate);
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.my_toolbar);
+        toolbar.setTitleTextColor(Color.parseColor("#ffffff"));
         setSupportActionBar(toolbar);
 
         list = findViewById(R.id.modifieddate);
