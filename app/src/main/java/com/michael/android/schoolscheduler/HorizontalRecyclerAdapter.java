@@ -1,6 +1,7 @@
 package com.michael.android.schoolscheduler;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,14 +10,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private ArrayList<Bitmap> mList;
+    private ArrayList<String> mList;
     private OnItemClickListener mItemClickListener;
 
-    public HorizontalRecyclerAdapter(ArrayList<Bitmap> list) {
+    public HorizontalRecyclerAdapter(ArrayList<String> list) {
         this.mList = list;
     }
 
@@ -63,7 +65,9 @@ public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         switch (viewHolder.getItemViewType()) {
             default: {
                 CellViewHolder cellViewHolder = (CellViewHolder) viewHolder;
-                cellViewHolder.mImageView.setImageBitmap(mList.get(i));
+                File imgFile = new File(mList.get(i));
+                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                cellViewHolder.mImageView.setImageBitmap(bitmap);
                 break;
             }
         }

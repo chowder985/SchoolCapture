@@ -5,15 +5,15 @@ import android.graphics.Bitmap;
 import java.util.ArrayList;
 
 public class GalleryItem {
-    private ArrayList<Bitmap> mList;
+    private ArrayList<String> mList;
     private String date;
 
-    public GalleryItem(ArrayList<Bitmap> list, String date){
+    public GalleryItem(ArrayList<String> list, String date){
         mList = list;
         this.date = date;
     }
 
-    public ArrayList<Bitmap> getList() {
+    public ArrayList<String> getList() {
         return mList;
     }
 
