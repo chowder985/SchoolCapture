@@ -320,11 +320,13 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         ExifInterface exif;
         try {
             exif = new ExifInterface(loot);
+            Log.d("LOCATION", loot);
             getdate = exif.getAttribute(ExifInterface.TAG_DATETIME);
             orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "EXIF LOADING ERROR", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         String s[] = getdate.split(" ");//format 2018:06:23 20:13:21//날짜 시간 분리
@@ -366,12 +368,11 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
     }
 
-
     public void searchTimetableDB(String subject, Uri uri, String date, int orientation, String path) {//
         Bitmap image;
         try {
             String inputpath[] = path.split("/");
-            String imagename = inputpath[inputpath.length];
+            String imagename = inputpath[inputpath.length-1];
             String savepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/imagedatas/";
             image = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
             Bitmap rotated = rotateBitmap(image, orientation);
@@ -585,6 +586,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         String filePath = "";
         String fileId = DocumentsContract.getDocumentId(uri);
         // Split at colon, use second item in the array
+        Log.d("DEBUG", fileId);
         String id = fileId.split(":")[1];
         String[] column = {MediaStore.Images.Media.DATA};
         String selector = MediaStore.Images.Media._ID + "=?";
