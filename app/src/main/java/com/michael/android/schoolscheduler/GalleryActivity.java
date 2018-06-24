@@ -30,7 +30,7 @@ import java.util.List;
 
 public class GalleryActivity extends AppCompatActivity {
 
-    ArrayList<Bitmap> subList;
+    ArrayList<String> subList;
     ArrayList<GalleryItem> list;
 
     String subjectName;
@@ -64,13 +64,13 @@ public class GalleryActivity extends AppCompatActivity {
         }
         getSupportActionBar().setTitle(subjectName);
 
-        subList = new ArrayList<Bitmap>();
+        subList = new ArrayList<String>();
         list = new ArrayList<GalleryItem>();
         ArrayList<String> dateList = new ArrayList<String>();
 
         PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
         pictureDB = pictureDBHelper.getWritableDatabase();
-        Cursor c1 = pictureDB.rawQuery("select subject, image_data, image_date from picture_data", null);
+        Cursor c1 = pictureDB.rawQuery("select subject, image_location, image_date from picture_data", null);
         while(c1.moveToNext()){
             if(!dateList.contains(c1.getString(2)) && c1.getString(0) != null && c1.getString(0).equals(subjectName)){
                 dateList.add(c1.getString(2));
@@ -82,8 +82,8 @@ public class GalleryActivity extends AppCompatActivity {
                 if (c1.getString(0) != null && c1.getString(0).equals(subjectName) &&
                         c1.getString(2) != null && c1.getString(2).equals(dateList.get(i))) {
                     Log.d("MUST SEE", "image in list");
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(c1.getBlob(1), 0, c1.getBlob(1).length);
-                    subList.add(bitmap);
+                    //Bitmap bitmap = BitmapFactory.decodeByteArray(c1.getBlob(1), 0, c1.getBlob(1).length);
+                    subList.add(c1.getString(1));
                 }
             }while(c1.moveToNext());
             GalleryItem item = new GalleryItem(subList, dateList.get(i));
