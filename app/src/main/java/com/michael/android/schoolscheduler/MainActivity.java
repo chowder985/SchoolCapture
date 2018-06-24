@@ -15,6 +15,7 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
@@ -39,7 +40,9 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
@@ -58,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     ArrayList<String> subjects = new ArrayList<String>();
     ArrayAdapter<String> adapter;
 
-    String imageEncoded;
     List<String> imagesEncodedList;
     final static int breaktime = 10;
     final static int lunchtime = 50;
@@ -207,8 +209,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 dialog.show();
                 return true;
             case R.id.add_picture://사진추가
-//                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-//                startActivityForResult(intent, 0);
+
                 if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) &&
                         (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
                     ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
@@ -271,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
                     //Toast.makeText(this, displayName, Toast.LENGTH_SHORT).show();
 
-                    setImageonDB("/storage/emulated/0/DCIM/camera/" + displayName, mImageUri);
+                    setImageonDB("/storage/emulated/0/DCIM/camera/" + displayName, mImageUri,displayName);
 
                 } else {//사진여러개
                     if (data.getClipData() != null) {
@@ -287,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                             cursor.moveToFirst();
                             String displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                             cursor.close();
-                            setImageonDB("/storage/emulated/0/DCIM/camera/" + displayName, mArrayUri.get(i));
+                            setImageonDB("/storage/emulated/0/DCIM/camera/" + displayName, mArrayUri.get(i),displayName);
                         }
                     }
                 }
@@ -316,9 +317,9 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         adapter.notifyDataSetChanged();
     }
 
-    public void setImageonDB(String loot, Uri uri) throws Exception//통합 사진저장메소드
+    public void setImageonDB(String loot, Uri uri, String imagename) throws Exception//통합 사진저장메소드
     {
-        int m = 6, y = 2018, d = 23;
+        int m, y, d;
         int takenh, takenm, takens;
         int day = 1, classcount = 7, classtime = 50;
         String thatsubject = "";
@@ -333,12 +334,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         String getdate = exif.getAttribute(ExifInterface.TAG_DATETIME);
         int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
 
-        //Toast.makeText(this, getdate, Toast.LENGTH_SHORT).show();
-        //Log.d("Date", getdate);
-
-        //요일변수 세팅
-        //예외처리DB검색
-        //교시 시간변수 세팅
         String s[] = getdate.split(" ");//format 2018:06:23 20:13:21//날짜 시간 분리
         String date[] = s[0].split(":");//날짜 분리저장
         y = Integer.parseInt(date[0]);
@@ -375,34 +370,47 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 thatsubject = timetableDB.getsubjectname(day, i);
             }
         }
-        searchTimetableDB(thatsubject, uri, s[0], orientation);//사진DB에 추가
+        searchTimetableDB(thatsubject, uri, s[0], orientation, imagename);//사진DB에 추가
 
     }
 
-    public void searchTimetableDB(String subject, Uri uri, String date, int orientation) {
+    public void searchTimetableDB(String subject, Uri uri, String date, int orientation, String imagename) {
         Bitmap image;
         try {
+            String savepath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/imagedatas/";
             image = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
             Bitmap rotated = rotateBitmap(image, orientation);
-            final byte[] imageInByte = getBytes(rotated);
+            PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
+            File file_path;
+            try{
+                file_path = new File(savepath);
+                if(!file_path.isDirectory()){
+                    file_path.mkdirs();
+                }
+                FileOutputStream out = new FileOutputStream(savepath+imagename);
+                rotated.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                pictureDBHelper.insert(savepath+imagename, date, subject);
+                out.close();
+
+            }catch(FileNotFoundException exception){
+                Log.e("FileNotFoundException", exception.getMessage());
+            }catch(IOException exception){
+                Log.e("IOException", exception.getMessage());
+            }
+
+            /*
             if (subject != null) {
                 ContentValues cv = new ContentValues();
                 cv.put("subject", subject);
                 cv.put("image_data", imageInByte);
                 cv.put("image_date", date);
                 pictureDB.insert("picture_data", null, cv);
-            }
+            }*/
             //pictureDB.execSQL("insert into picture_data (subject, image_data, image_date) values ('"+cursor.getString(0)+"', "+imageInByte+", '"+date+"');");
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    }
-
-    public static byte[] getBytes(Bitmap bitmap) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
-        return stream.toByteArray();
     }
 
     public int getDateDay(String year, String month, String days, String dateType) throws Exception {

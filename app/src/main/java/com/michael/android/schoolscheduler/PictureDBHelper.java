@@ -24,36 +24,24 @@ public class PictureDBHelper extends SQLiteOpenHelper {
         String memoSQL= "create table picture_data " +
                 "(_id integer primary key autoincrement,"
                 + "subject text,"
-                + "image_data blob not null unique ,"
+                + "image_location text not null unique ,"
                 + "image_date text)";
 
         db.execSQL(memoSQL);
     }
 
-    public void insert(byte[] img, int day, String subject) {
+    public void insert(String imagelocation, String day, String subject) {
         // 읽고 쓰기가 가능하게 DB 열기
         SQLiteDatabase db = getWritableDatabase();
         // DB에 입력한 값으로 행 추가
-        SQLiteStatement p = db.compileStatement("INSERT INTO picture_data (image_data, subject, image_date) values (?,'"+subject+"', "+day+");");
-        p.bindBlob(1, img);
-
-       // db.execSQL("INSERT INTO picture_data (date, count ,classtime, dates) VALUES (" + date + ", " + count + ", " + classtime + ", '"+dates+"');");
+        db.execSQL("INSERT INTO picture_data (image_location, subject, image_date) values ('"+imagelocation+"','"+subject+"', '"+day+"');");
         db.close();
     }
 
-    public void update(int date, int count, int classtime, String dates) {
-        SQLiteDatabase db = getWritableDatabase();
-        // 입력한 항목과 일치하는 행의 가격 정보 수정
-        db.execSQL("UPDATE picture_data SET classtime=" + classtime + " WHERE date=" + date + ";");
-        db.execSQL("UPDATE picture_data SET count=" + count + " WHERE date=" + date + ";");
-        db.execSQL("UPDATE picture_data SET dates='" + dates + "' WHERE date=" + date + ";");
-        db.close();
-    }
-
-    public void delete(int date) {
+    public void delete(String imagelocation) {
         SQLiteDatabase db = getWritableDatabase();
         // 입력한 항목과 일치하는 행 삭제
-        db.execSQL("DELETE FROM picture_data WHERE date=" + date + ";");
+        db.execSQL("DELETE FROM picture_data WHERE image_location='" + imagelocation+ "';");
         db.close();
     }
 
