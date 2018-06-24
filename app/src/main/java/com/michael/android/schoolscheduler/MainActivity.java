@@ -36,7 +36,10 @@ import android.widget.Toast;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
@@ -70,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
         pictureDB = pictureDBHelper.getWritableDatabase();
 
-        subjectList = (ListView)findViewById(R.id.list);
+        subjectList = (ListView) findViewById(R.id.list);
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, subjects);
         subjectList.setAdapter(adapter);
 
@@ -102,16 +105,16 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        while(c2.moveToNext()){
-                            for(int k=2; k<=9; k++){
-                                if(c2.getString(k) != null && c2.getString(k).equals(subjects.get(position))){
-                                    timetableDB.update(c2.getInt(1), k-1, "");
+                        while (c2.moveToNext()) {
+                            for (int k = 2; k <= 9; k++) {
+                                if (c2.getString(k) != null && c2.getString(k).equals(subjects.get(position))) {
+                                    timetableDB.update(c2.getInt(1), k - 1, "");
                                 }
                             }
                         }
                         c2.moveToFirst();
 
-                        pictureDB.execSQL("delete from picture_data where subject = '"+subjects.get(position)+"';");
+                        pictureDB.execSQL("delete from picture_data where subject = '" + subjects.get(position) + "';");
 
                         String[] selectionArgs = {subjects.get(position)};
                         subjects.remove(position);
@@ -199,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 //                startActivityForResult(intent, 0);
                 if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.MANAGE_DOCUMENTS}, 1);
-                }else {
+                } else {
                     Intent intent = new Intent();
                     intent.setType("image/*");
                     intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -253,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
                     Toast.makeText(this, displayName, Toast.LENGTH_SHORT).show();
 
-                    setImageonDB("/storage/emulated/0/DCIM/Camera/"+displayName);
+                    setImageonDB("/storage/emulated/0/DCIM/Camera/" + displayName);
 
                 } else {//사진여러개
                     if (data.getClipData() != null) {
@@ -269,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                             cursor.moveToFirst();
                             String displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                             cursor.close();
-                            setImageonDB("/storage/emulated/0/DCIM/Camera/"+displayName);
+                            setImageonDB("/storage/emulated/0/DCIM/Camera/" + displayName);
                         }
                     }
                 }
@@ -297,10 +300,11 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         adapter.notifyDataSetChanged();
     }
 
-    public void setImageonDB(String loot)//통합 사진저장메소드
+    public void setImageonDB(String loot) throws Exception//통합 사진저장메소드
     {
         int m, y, d;
-        int classcount=7, classtime=50;
+        int takenh, takenm, takens;
+        int day = 0, classcount = 7, classtime = 50;
         //날짜받음
         ExifInterface exif = null;
         try {
@@ -311,15 +315,126 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         }
         String getdate = exif.getAttribute(ExifInterface.TAG_DATETIME);
         Toast.makeText(this, getdate, Toast.LENGTH_SHORT).show();
+        String s[] = getdate.split(" ");//format 2018:06:23 20:13:21
+        String date[] = s[0].split(":");//날짜 분리저장
+        y=Integer.parseInt(date[0]);
+        m=Integer.parseInt(date[1]);
+        d=Integer.parseInt(date[2]);
+        String time[] = s[1].split(":");//시간 분리저장
+        takenh = Integer.parseInt(time[0]);
+        takenm = Integer.parseInt(time[1]);
+        takens = Integer.parseInt(time[2]);
 
-        //요일변수 세팅
-        //예외처리DB검색
-        //교시 시간변수 세팅
+        day = getDateDay(date[0], date[1], date[2], "yyyy-M-dd");//요일변수 세팅
+        if (day == 0) {
+            Toast.makeText(this, "시간표에 지정되지 않은 시간에 촬영된 사진입니다", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Log.d("DAY", Integer.toString(day));
+
+        int search = dateTOint(y,m,d);
+        ExceptionDB exceptionDB = new ExceptionDB(getApplicationContext());
+        boolean def = exceptionDB.overlap(search);//예외처리DB검색
+        if (def)//예외처리된 날짜일경우
+        {
+            String exception = exceptionDB.getResult(search);
+            String exval[] = exception.split("-");
+            classcount = Integer.parseInt(exval[1]);//교시 시간변수 세팅
+            classtime = Integer.parseInt(exval[1]);
+        }
+
+
+        for(int i=0;i<classcount;i++)
+        {
+            
+        }
+
 
 
         //요일,교시,시간변수참조하여 시간표DB에서 과목검색
         //사진DB에 추가
 
     }
+
+    public int getDateDay(String year, String month, String days, String dateType) throws Exception {
+
+        String date = year + "-" + month + "-" + days;
+        int day = 0;
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat(dateType);
+        Date nDate = dateFormat.parse(date);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(nDate);
+        int dayNum = cal.get(Calendar.DAY_OF_WEEK);
+
+        switch (dayNum) {
+            case 1:
+                break;
+            case 2:
+                day = 1;
+                break;
+            case 3:
+                day = 2;
+                break;
+            case 4:
+                day = 3;
+                break;
+            case 5:
+                day = 4;
+                break;
+            case 6:
+                day = 5;
+                break;
+            case 7:
+                break;
+
+        }
+        return day;
+    }
+
+
+    public int dateTOint(int y, int m, int d)//입력된 날짜를 일수로 변환
+    {
+        int idate, upcount = 0;
+        for (int i = 1; i < y; i++) {
+            if ((0 == (i % 4) && 0 != (i % 100)) || 0 == i % 400)
+                upcount++;
+        }
+        idate = y * 365 + upcount;
+        switch (m) {
+            case 12:
+                idate += 31;
+            case 11:
+                idate += 30;
+            case 10:
+                idate += 31;
+            case 9:
+                idate += 30;
+            case 8:
+                idate += 31;
+            case 7:
+                idate += 31;
+            case 6:
+                idate += 30;
+            case 5:
+                idate += 31;
+            case 4:
+                idate += 30;
+            case 3:
+                idate += 31;
+            case 2:
+                if ((0 == (y % 4) && 0 != (y % 100)) || 0 == y % 400)
+                    idate += 29;
+                else
+                    idate += 28;
+            case 1:
+                idate += 31;
+
+        }
+        idate += d;
+        return idate;
+    }
+
 
 }
