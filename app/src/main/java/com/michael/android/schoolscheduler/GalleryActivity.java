@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +72,7 @@ public class GalleryActivity extends AppCompatActivity {
         pictureDB = pictureDBHelper.getWritableDatabase();
         Cursor c1 = pictureDB.rawQuery("select subject, image_data, image_date from picture_data", null);
         while(c1.moveToNext()){
-            if(!dateList.contains(c1.getString(2))){
+            if(!dateList.contains(c1.getString(2)) && c1.getString(0) != null && c1.getString(0).equals(subjectName)){
                 dateList.add(c1.getString(2));
             }
         }
@@ -111,8 +112,12 @@ public class GalleryActivity extends AppCompatActivity {
             @Override
             public void onItemClick(View view, int position) {
                 ImageView image = (ImageView)view.findViewById(R.id.image_1);
+                image.buildDrawingCache();
+                Bitmap bitmap = image.getDrawingCache();
+                byte[] imageInByte = getBytes(bitmap);
                 Toast.makeText(getApplicationContext(), "click " + position, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getApplicationContext(), ImageLookUp.class);
+                intent.putExtra("image_data", imageInByte);
                 startActivity(intent);
             }
 
@@ -168,5 +173,11 @@ public class GalleryActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("myPref", MODE_PRIVATE);
         subjectName = prefs.getString("subject_name", null);
         getSupportActionBar().setTitle(subjectName);
+    }
+
+    public static byte[] getBytes(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
+        return stream.toByteArray();
     }
 }

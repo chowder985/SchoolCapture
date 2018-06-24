@@ -1,6 +1,7 @@
 package com.michael.android.schoolscheduler;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -12,10 +13,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -202,17 +205,17 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             case R.id.add_picture://사진추가
 //                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 //                startActivityForResult(intent, 0);
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.MANAGE_DOCUMENTS, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                    return false;
+                if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) &&
+                        (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 }else {
                     Intent intent = new Intent();
                     intent.setType("image/*");
                     intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
                     startActivityForResult(Intent.createChooser(intent, "Select Picture"), 0);
-                    return true;
                 }
+                return true;
             default:
                 return false;
         }
@@ -223,12 +226,17 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         switch (requestCode) {
             case 1:
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                     Intent intent = new Intent();
                     intent.setType("image/*");
                     intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
                     startActivityForResult(Intent.createChooser(intent, "Select Picture"), 0);
+//                    Intent i = getBaseContext().getPackageManager()
+//                            .getLaunchIntentForPackage( getBaseContext().getPackageName() );
+//                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                    finishAndRemoveTask();
+//                    startActivity(i);
                 } else {
                     //do something like displaying a message that he didn`t allow the app to access gallery and you wont be able to let him select from gallery
                 }
@@ -333,23 +341,23 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         takenm = Integer.parseInt(time[1]);
         takens = Integer.parseInt(time[2]);
 
-        day = getDateDay(date[0], date[1], date[2], "yyyy-M-dd");//요일변수 세팅
-        if (day == 0) {
-            Toast.makeText(this, "시간표에 지정되지 않은 시간에 촬영된 사진입니다", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Log.d("DAY", Integer.toString(day));
-
-        int search = dateTOint(y,m,d);
-        ExceptionDB exceptionDB = new ExceptionDB(getApplicationContext());
-        boolean def = exceptionDB.overlap(search);//예외처리DB검색
-        if (def)//예외처리된 날짜일경우
-        {
-            String exception = exceptionDB.getResult(search);
-            String exval[] = exception.split("-");
-            classcount = Integer.parseInt(exval[1]);//교시 시간변수 세팅
-            classtime = Integer.parseInt(exval[1]);
-        }
+//        day = getDateDay(date[0], date[1], date[2], "yyyy-M-dd");//요일변수 세팅
+//        if (day == 0) {
+//            Toast.makeText(this, "시간표에 지정되지 않은 시간에 촬영된 사진입니다", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//        Log.d("DAY", Integer.toString(day));
+//
+//        int search = dateTOint(y,m,d);
+//        ExceptionDB exceptionDB = new ExceptionDB(getApplicationContext());
+//        boolean def = exceptionDB.overlap(search);//예외처리DB검색
+//        if (def)//예외처리된 날짜일경우
+//        {
+//            String exception = exceptionDB.getResult(search);
+//            String exval[] = exception.split("-");
+//            classcount = Integer.parseInt(exval[1]);//교시 시간변수 세팅
+//            classtime = Integer.parseInt(exval[1]);
+//        }
 
         //요일,교시,시간변수참조하여 시간표DB에서 과목검색
         //사진DB에 추가
