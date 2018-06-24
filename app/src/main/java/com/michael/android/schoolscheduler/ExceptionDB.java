@@ -66,7 +66,6 @@ public class ExceptionDB extends SQLiteOpenHelper {
                         + cursor.getString(2)//count
                         + "-"
                         + cursor.getInt(3)//time
-                        + "-"
                         + "\n";
             }
         }

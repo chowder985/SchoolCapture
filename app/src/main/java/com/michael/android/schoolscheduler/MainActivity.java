@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -34,9 +33,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -287,6 +284,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                         Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
+            e.printStackTrace();
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
                     .show();
         }
@@ -308,6 +306,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
     public void setImageonDB(String loot) throws Exception//통합 사진저장메소드
     {
+        Log.d("","setImageOnDB mathod called");
         int m, y, d;
         int takenh, takenm, takens;
         int day = 0, classcount = 7, classtime = 50;
@@ -345,10 +344,11 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         boolean def = exceptionDB.overlap(search);//예외처리DB검색
         if (def)//예외처리된 날짜일경우
         {
+            Log.d("","exception date confirmed");
             String exception = exceptionDB.getResult(search);
             String exval[] = exception.split("-");
             classcount = Integer.parseInt(exval[1]);//교시 시간변수 세팅
-            classtime = Integer.parseInt(exval[1]);
+            classtime = Integer.parseInt(exval[2]);
         }
 
         for (int i = 1; i <= classcount; i++) {//해당요일 / 교시의 과목이름 불러오기

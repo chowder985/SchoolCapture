@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
 
@@ -33,6 +34,8 @@ public class PictureDBHelper extends SQLiteOpenHelper {
         // 읽고 쓰기가 가능하게 DB 열기
         SQLiteDatabase db = getWritableDatabase();
         // DB에 입력한 값으로 행 추가
+        SQLiteStatement p = db.compileStatement("INSERT INTO picture_data (image_data, subject, image_date) values (?,'"+subject+"', "+day+");");
+        p.bindBlob(1, img);
 
        // db.execSQL("INSERT INTO picture_data (date, count ,classtime, dates) VALUES (" + date + ", " + count + ", " + classtime + ", '"+dates+"');");
         db.close();
