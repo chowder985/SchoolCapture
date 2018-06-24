@@ -64,7 +64,7 @@ public class GalleryActivity extends AppCompatActivity {
             editor.apply();
         }
         getSupportActionBar().setTitle(subjectName);
-        bringDataFromDB();
+
         list = new ArrayList<GalleryItem>();
         ArrayList<String> dateList = new ArrayList<String>();
 
@@ -121,34 +121,6 @@ public class GalleryActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "long click " + position, Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    public void bringDataFromDB(){
-        subList = new ArrayList<String>();
-        list = new ArrayList<GalleryItem>();
-        ArrayList<String> dateList = new ArrayList<String>();
-
-        PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
-        pictureDB = pictureDBHelper.getWritableDatabase();
-        Cursor c1 = pictureDB.rawQuery("select subject, image_location, image_date from picture_data", null);
-        while(c1.moveToNext()){
-            if((!dateList.contains(c1.getString(2))) && (c1.getString(0) != null && c1.getString(0).equals(subjectName))){
-                dateList.add(c1.getString(2));
-            }
-        }
-        c1.moveToFirst();
-        for(int i=0; i<dateList.size(); i++){
-            do{
-                if ((c1.getString(0) != null && c1.getString(0).equals(subjectName)) &&
-                        (c1.getString(2) != null && c1.getString(2).equals(dateList.get(i)))) {
-                    Log.d("MUST SEE", "image in list");
-                    subList.add(c1.getString(1));
-                }
-            }while(c1.moveToNext());
-            GalleryItem item = new GalleryItem(subList, dateList.get(i));
-            list.add(item);
-            c1.moveToFirst();
-        }
     }
 
     @Override
