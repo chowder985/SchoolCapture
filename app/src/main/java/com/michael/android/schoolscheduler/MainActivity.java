@@ -33,6 +33,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Time;
@@ -310,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         int m, y, d;
         int takenh, takenm, takens;
         int day = 0, classcount = 7, classtime = 50;
-        String thatsubject;
+        String thatsubject="";
         //날짜받음
         ExifInterface exif = null;
         try {
@@ -337,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             return;
         }
         Log.d("DAY", Integer.toString(day));
+        Log.d("DAY", loot);
 
         int search = dateTOint(y, m, d);
         ExceptionDB exceptionDB = new ExceptionDB(getApplicationContext());
@@ -358,11 +360,13 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             }
         }
 
+        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(loot));//DB삽입용 이미지 변환
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byte[] data = stream.toByteArray();
 
-
-
-
-        //사진DB에 추가
+        PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
+        pictureDBHelper.insert(data, day, thatsubject);//사진DB에 추가
 
     }
 
