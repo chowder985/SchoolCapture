@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -76,12 +77,14 @@ public class GalleryActivity extends AppCompatActivity {
         }
         c1.moveToFirst();
         for(int i=0; i<dateList.size(); i++){
-            while(c1.moveToNext()){
-                if (c1.getString(0) == subjectName && c1.getString(2) == dateList.get(i)) {
+            do{
+                if (c1.getString(0) != null && c1.getString(0).equals(subjectName) &&
+                        c1.getString(2) != null && c1.getString(2).equals(dateList.get(i))) {
+                    Log.d("MUST SEE", "image in list");
                     Bitmap bitmap = BitmapFactory.decodeByteArray(c1.getBlob(1), 0, c1.getBlob(1).length);
                     subList.add(bitmap);
                 }
-            }
+            }while(c1.moveToNext());
             GalleryItem item = new GalleryItem(subList, dateList.get(i));
             list.add(item);
             c1.moveToFirst();
