@@ -29,6 +29,7 @@
             android:layout_gravity="center"
             android:layout_marginLeft="20dp"
             android:text="시작날짜 "
+            android:textColor="#444444"
             android:textSize="18dp" />
 
         <Button
@@ -54,6 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginLeft="20dp"
+            android:textColor="#444444"
             android:text="종료날짜 "
             android:textSize="18dp" />
 
@@ -79,7 +81,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:text="교시"
-            android:textColor="#2f2f2f"
+            android:textColor="#444444"
             android:textSize="18dp" />
 
         <Spinner
@@ -99,7 +101,7 @@
         android:layout_marginLeft="20dp"
         android:layout_marginTop="20dp"
         android:text="수업시간"
-        android:textColor="#2f2f2f"
+        android:textColor="#444444"
         android:textSize="18dp" />
 
     <RadioGroup
@@ -114,12 +116,14 @@
             android:id="@+id/forteen"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#464646"
             android:text="40분" />
 
         <RadioButton
             android:id="@+id/fortifive"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#464646"
             android:layout_marginLeft="10dp"
             android:text="45분" />
 
@@ -127,6 +131,7 @@
             android:id="@+id/fifthin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#464646"
             android:layout_marginLeft="10dp"
             android:checked="true"
             android:text="50분" />
