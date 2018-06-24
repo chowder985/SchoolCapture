@@ -55,6 +55,11 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     String imageEncoded;
     List<String> imagesEncodedList;
 
+
+    final static int breaktime = 10;
+    final static int lunchtime = 50;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -305,6 +310,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         int m, y, d;
         int takenh, takenm, takens;
         int day = 0, classcount = 7, classtime = 50;
+        String thatsubject;
         //날짜받음
         ExifInterface exif = null;
         try {
@@ -317,9 +323,9 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         Toast.makeText(this, getdate, Toast.LENGTH_SHORT).show();
         String s[] = getdate.split(" ");//format 2018:06:23 20:13:21
         String date[] = s[0].split(":");//날짜 분리저장
-        y=Integer.parseInt(date[0]);
-        m=Integer.parseInt(date[1]);
-        d=Integer.parseInt(date[2]);
+        y = Integer.parseInt(date[0]);
+        m = Integer.parseInt(date[1]);
+        d = Integer.parseInt(date[2]);
         String time[] = s[1].split(":");//시간 분리저장
         takenh = Integer.parseInt(time[0]);
         takenm = Integer.parseInt(time[1]);
@@ -332,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         }
         Log.d("DAY", Integer.toString(day));
 
-        int search = dateTOint(y,m,d);
+        int search = dateTOint(y, m, d);
         ExceptionDB exceptionDB = new ExceptionDB(getApplicationContext());
         boolean def = exceptionDB.overlap(search);//예외처리DB검색
         if (def)//예외처리된 날짜일경우
@@ -343,15 +349,19 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             classtime = Integer.parseInt(exval[1]);
         }
 
-
-        for(int i=0;i<classcount;i++)
-        {
-            
+        for (int i = 1; i <= classcount; i++) {//해당요일 / 교시의 과목이름 불러오기
+            int takentime = takenh * 10000 + takenm * 100 + takens;//요일,교시,시간변수참조하여 시간표DB에서 과목검색
+            if (getstarttime(i, classtime) < takentime && getendtime(i, classtime) >= takentime)//찍은시간이 i교시이면// 종료시각은 다음시간 시작시간과 같음
+            {
+                TimetableDB timetableDB = new TimetableDB(this);
+                thatsubject = timetableDB.getsubjectname(day, i);
+            }
         }
 
 
 
-        //요일,교시,시간변수참조하여 시간표DB에서 과목검색
+
+
         //사진DB에 추가
 
     }
@@ -372,7 +382,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             case 1:
                 break;
             case 2:
-                day = 1;
+                day = 1;//월
                 break;
             case 3:
                 day = 2;
@@ -384,7 +394,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 day = 4;
                 break;
             case 6:
-                day = 5;
+                day = 5;//금
                 break;
             case 7:
                 break;
@@ -434,6 +444,42 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         }
         idate += d;
         return idate;
+    }
+
+    public static int getstarttime(int n, int runtime)//n교시의 시작하는 시간
+    {
+        //set form hhmmss
+        int h = 8;
+        int m = 40;
+        int result = 0;
+        m += (runtime * (n - 1)) + (breaktime * (n - 1));
+        if (n >= 5) {
+            m += lunchtime - 10;
+        }
+        if (m > 59) {
+            h = h + m / 60;
+            m = m % 60;
+        }
+        result = h * 10000 + m * 100;
+        return result;
+    }
+
+    public static int getendtime(int n, int runtime)//n교시의 끝나는 시간
+    {
+        //set form hhmmss
+        int h = 8;
+        int m = 40;
+        int result = 0;
+        m += runtime * n + breaktime * n;
+        if (n >= 5) {
+            m += lunchtime - 10;
+        }
+        if (m > 59) {
+            h = h + m / 60;
+            m = m % 60;
+        }
+        result = h * 10000 + m * 100;
+        return result;
     }
 
 

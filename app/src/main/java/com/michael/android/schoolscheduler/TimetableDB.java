@@ -84,4 +84,44 @@ public class TimetableDB extends SQLiteOpenHelper {
 
         return result;
     }
+
+    public String getsubjectname(int day, int classcount)
+    {
+        SQLiteDatabase db = getReadableDatabase();
+        String result, sqlclasscount="";
+        // DB에 있는 데이터를 쉽게 처리하기 위해 Cursor를 사용하여 테이블에 있는 모든 데이터 출력
+
+        if(classcount==1)
+        {
+            sqlclasscount = "first";
+        }else if(classcount==2)
+        {
+            sqlclasscount = "second";
+        }else if(classcount==3)
+        {
+            sqlclasscount = "third";
+        }else if(classcount==4)
+        {
+            sqlclasscount = "forth";
+        }else if(classcount==5)
+        {
+            sqlclasscount = "fifth";
+        }else if(classcount==6)
+        {
+            sqlclasscount = "sixth";
+        }else if(classcount==7)
+        {
+            sqlclasscount = "seventh";
+        }else if(classcount==8)
+        {
+            sqlclasscount = "eighth";
+        }
+
+
+        Cursor cursor = db.rawQuery("SELECT "+ sqlclasscount +" FROM TIMETABLE where day = "+day, null);
+            result = cursor.getString(0);
+        return result;
+    }
+
+
 }
