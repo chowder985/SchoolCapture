@@ -24,7 +24,7 @@ public class PictureDBHelper extends SQLiteOpenHelper {
         String memoSQL= "create table picture_data " +
                 "(_id integer primary key autoincrement,"
                 + "subject text,"
-                + "image_data blob,"
+                + "image_data blob not null unique ,"
                 + "image_date text)";
 
         db.execSQL(memoSQL);
