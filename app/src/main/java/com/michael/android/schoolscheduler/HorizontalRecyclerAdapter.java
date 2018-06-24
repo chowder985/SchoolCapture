@@ -35,7 +35,7 @@ public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         @Override
         public void onClick(View view) {
             if (mItemClickListener != null) {
-                mItemClickListener.onItemClick(view, getLayoutPosition());
+                mItemClickListener.onItemClick(view, getLayoutPosition(), mList.get(getLayoutPosition()));
             }
         }
 
@@ -81,7 +81,7 @@ public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
     }
 
     public interface OnItemClickListener {
-        void onItemClick(View view, int position);
+        void onItemClick(View view, int position, String path);
 
         void onItemLongClick(View view, int position);
     }

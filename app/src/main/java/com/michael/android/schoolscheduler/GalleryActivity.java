@@ -24,6 +24,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,32 +65,7 @@ public class GalleryActivity extends AppCompatActivity {
         }
         getSupportActionBar().setTitle(subjectName);
 
-        subList = new ArrayList<String>();
-        list = new ArrayList<GalleryItem>();
-        ArrayList<String> dateList = new ArrayList<String>();
-
-        PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
-        pictureDB = pictureDBHelper.getWritableDatabase();
-        Cursor c1 = pictureDB.rawQuery("select subject, image_location, image_date from picture_data", null);
-        while(c1.moveToNext()){
-            if(!dateList.contains(c1.getString(2)) && c1.getString(0) != null && c1.getString(0).equals(subjectName)){
-                dateList.add(c1.getString(2));
-            }
-        }
-        c1.moveToFirst();
-        for(int i=0; i<dateList.size(); i++){
-            do{
-                if (c1.getString(0) != null && c1.getString(0).equals(subjectName) &&
-                        c1.getString(2) != null && c1.getString(2).equals(dateList.get(i))) {
-                    Log.d("MUST SEE", "image in list");
-                    //Bitmap bitmap = BitmapFactory.decodeByteArray(c1.getBlob(1), 0, c1.getBlob(1).length);
-                    subList.add(c1.getString(1));
-                }
-            }while(c1.moveToNext());
-            GalleryItem item = new GalleryItem(subList, dateList.get(i));
-            list.add(item);
-            c1.moveToFirst();
-        }
+        bringDataFromDB();
 
 //        for(int i=0; i<10; i++){
 //            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_sample);
@@ -108,17 +84,21 @@ public class GalleryActivity extends AppCompatActivity {
 
         galleryAdapter = new GalleryAdapter(list);
         galleryList.setAdapter(galleryAdapter);
+
         galleryAdapter.SetOnItemClickListener(new HorizontalRecyclerAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(View view, int position) {
-                ImageView image = (ImageView)view.findViewById(R.id.image_1);
-                image.buildDrawingCache();
-                Bitmap bitmap = image.getDrawingCache();
-                byte[] imageInByte = getBytes(bitmap);
-                Toast.makeText(getApplicationContext(), "click " + position, Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getApplicationContext(), ImageLookUp.class);
-                intent.putExtra("image_data", imageInByte);
-                startActivity(intent);
+            public void onItemClick(View view, int position, String path) {
+                Cursor cursor = pictureDB.rawQuery("select image_location from picture_data", null);
+                while(cursor.moveToNext()){
+                    Log.d("Location", cursor.getString(0));
+                    if(path.equals(cursor.getString(0))){
+                        //byte[] imageInByte = getBytes(bitmap);
+                        //Toast.makeText(getApplicationContext(), "click " + position, Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(getApplicationContext(), ImageLookUp.class);
+                        intent.putExtra("image_data", cursor.getString(0));
+                        startActivityForResult(intent, 20);
+                    }
+                }
             }
 
             @Override
@@ -126,6 +106,34 @@ public class GalleryActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "long click " + position, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void bringDataFromDB(){
+        subList = new ArrayList<String>();
+        list = new ArrayList<GalleryItem>();
+        ArrayList<String> dateList = new ArrayList<String>();
+
+        PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
+        pictureDB = pictureDBHelper.getWritableDatabase();
+        Cursor c1 = pictureDB.rawQuery("select subject, image_location, image_date from picture_data", null);
+        while(c1.moveToNext()){
+            if((!dateList.contains(c1.getString(2))) && (c1.getString(0) != null && c1.getString(0).equals(subjectName))){
+                dateList.add(c1.getString(2));
+            }
+        }
+        c1.moveToFirst();
+        for(int i=0; i<dateList.size(); i++){
+            do{
+                if ((c1.getString(0) != null && c1.getString(0).equals(subjectName)) &&
+                        (c1.getString(2) != null && c1.getString(2).equals(dateList.get(i)))) {
+                    Log.d("MUST SEE", "image in list");
+                    subList.add(c1.getString(1));
+                }
+            }while(c1.moveToNext());
+            GalleryItem item = new GalleryItem(subList, dateList.get(i));
+            list.add(item);
+            c1.moveToFirst();
+        }
     }
 
     @Override
@@ -163,6 +171,10 @@ public class GalleryActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = getSharedPreferences("myPref", MODE_PRIVATE).edit();
             editor.putString("subject_name", subjectName);
             editor.apply();
+        } else if(requestCode == 20 && resultCode == RESULT_OK){
+            Log.d("Delete on return", "Yes");
+            finish();
+            startActivity(getIntent());
         }
     }
 
@@ -173,11 +185,5 @@ public class GalleryActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("myPref", MODE_PRIVATE);
         subjectName = prefs.getString("subject_name", null);
         getSupportActionBar().setTitle(subjectName);
-    }
-
-    public static byte[] getBytes(Bitmap bitmap) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 0, stream);
-        return stream.toByteArray();
     }
 }
