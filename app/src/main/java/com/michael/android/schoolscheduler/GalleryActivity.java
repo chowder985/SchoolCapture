@@ -64,17 +64,32 @@ public class GalleryActivity extends AppCompatActivity {
             editor.apply();
         }
         getSupportActionBar().setTitle(subjectName);
-
         bringDataFromDB();
+        list = new ArrayList<GalleryItem>();
+        ArrayList<String> dateList = new ArrayList<String>();
 
-//        for(int i=0; i<10; i++){
-//            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_sample);
-//            subList.add(bitmap);
-//        }
-//        for(int i=0; i<5; i++){
-//            GalleryItem item = new GalleryItem(subList, String.valueOf(i));
-//            list.add(item);
-//        }
+        PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
+        pictureDB = pictureDBHelper.getWritableDatabase();
+        Cursor c1 = pictureDB.rawQuery("select subject, image_location, image_date from picture_data", null);
+
+
+        c1.moveToFirst();
+        while(c1.moveToNext()){
+            if(!dateList.contains(c1.getString(2))&& c1.getString(0).equals(subjectName)){//해당과목중에 날짜리스트중 추가가 안되어있으면
+                dateList.add(c1.getString(2));
+            }
+        }
+        c1.moveToFirst();
+        for(int i=0; i<dateList.size(); i++){
+            subList = new ArrayList<String>();
+            Cursor c2 = pictureDB.rawQuery("select image_location from picture_data where subject='"+subjectName+"' and image_date='"+dateList.get(i)+"'", null);
+            while(c2.moveToNext())
+            {
+                subList.add(c2.getString(0));
+            }
+            GalleryItem item = new GalleryItem(subList, dateList.get(i));
+            list.add(item);
+        }
 
         galleryList = (RecyclerView) findViewById(R.id.gallery_list);
         galleryList.setHasFixedSize(false);
