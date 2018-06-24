@@ -2,12 +2,14 @@ package com.michael.android.schoolscheduler;
 
 import android.Manifest;
 import android.content.ClipData;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -33,7 +35,9 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -52,8 +56,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
     String imageEncoded;
     List<String> imagesEncodedList;
-
-
     final static int breaktime = 10;
     final static int lunchtime = 50;
 
@@ -76,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
         pictureDB = pictureDBHelper.getWritableDatabase();
 
-        subjectList = (ListView) findViewById(R.id.list);
+        subjectList = (ListView)findViewById(R.id.list);
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, subjects);
         subjectList.setAdapter(adapter);
 
@@ -108,16 +110,16 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 builder.setPositiveButton("네", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        while (c2.moveToNext()) {
-                            for (int k = 2; k <= 9; k++) {
-                                if (c2.getString(k) != null && c2.getString(k).equals(subjects.get(position))) {
-                                    timetableDB.update(c2.getInt(1), k - 1, "");
+                        while(c2.moveToNext()){
+                            for(int k=2; k<=9; k++){
+                                if(c2.getString(k) != null && c2.getString(k).equals(subjects.get(position))){
+                                    timetableDB.update(c2.getInt(1), k-1, "");
                                 }
                             }
                         }
                         c2.moveToFirst();
 
-                        pictureDB.execSQL("delete from picture_data where subject = '" + subjects.get(position) + "';");
+                        pictureDB.execSQL("delete from picture_data where subject = '"+subjects.get(position)+"';");
 
                         String[] selectionArgs = {subjects.get(position)};
                         subjects.remove(position);
@@ -258,9 +260,9 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                     String displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                     cursor.close();
 
-                    Toast.makeText(this, displayName, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(this, displayName, Toast.LENGTH_SHORT).show();
 
-                    setImageonDB("/storage/emulated/0/DCIM/Camera/" + displayName);
+                    setImageonDB("/storage/emulated/0/DCIM/camera/"+displayName, mImageUri);
 
                 } else {//사진여러개
                     if (data.getClipData() != null) {
@@ -276,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                             cursor.moveToFirst();
                             String displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                             cursor.close();
-                            setImageonDB("/storage/emulated/0/DCIM/Camera/" + displayName);
+                            setImageonDB("/storage/emulated/0/DCIM/camera/"+displayName, mArrayUri.get(i));
                         }
                     }
                 }
@@ -285,7 +287,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                         Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
-            e.printStackTrace();
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
                     .show();
         }
@@ -305,13 +306,12 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         adapter.notifyDataSetChanged();
     }
 
-    public void setImageonDB(String loot) throws Exception//통합 사진저장메소드
+    public void setImageonDB(String loot, Uri uri) throws Exception//통합 사진저장메소드
     {
-        Log.d("","setImageOnDB mathod called");
-        int m, y, d;
+        int m=6, y=2018, d=23;
         int takenh, takenm, takens;
-        int day = 0, classcount = 7, classtime = 50;
-        String thatsubject="";
+        int day = 1, classcount=7, classtime=50;
+        String thatsubject;
         //날짜받음
         ExifInterface exif = null;
         try {
@@ -321,12 +321,17 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             Toast.makeText(this, "EXIF LOADING ERROR", Toast.LENGTH_SHORT).show();
         }
         String getdate = exif.getAttribute(ExifInterface.TAG_DATETIME);
-        Toast.makeText(this, getdate, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, getdate, Toast.LENGTH_SHORT).show();
+        //Log.d("Date", getdate);
+
+        //요일변수 세팅
+        //예외처리DB검색
+        //교시 시간변수 세팅
         String s[] = getdate.split(" ");//format 2018:06:23 20:13:21
         String date[] = s[0].split(":");//날짜 분리저장
-        y = Integer.parseInt(date[0]);
-        m = Integer.parseInt(date[1]);
-        d = Integer.parseInt(date[2]);
+        y=Integer.parseInt(date[0]);
+        m=Integer.parseInt(date[1]);
+        d=Integer.parseInt(date[2]);
         String time[] = s[1].split(":");//시간 분리저장
         takenh = Integer.parseInt(time[0]);
         takenm = Integer.parseInt(time[1]);
@@ -338,18 +343,16 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             return;
         }
         Log.d("DAY", Integer.toString(day));
-        Log.d("DAY", loot);
 
-        int search = dateTOint(y, m, d);
+        int search = dateTOint(y,m,d);
         ExceptionDB exceptionDB = new ExceptionDB(getApplicationContext());
         boolean def = exceptionDB.overlap(search);//예외처리DB검색
         if (def)//예외처리된 날짜일경우
         {
-            Log.d("","exception date confirmed");
             String exception = exceptionDB.getResult(search);
             String exval[] = exception.split("-");
             classcount = Integer.parseInt(exval[1]);//교시 시간변수 세팅
-            classtime = Integer.parseInt(exval[2]);
+            classtime = Integer.parseInt(exval[1]);
         }
 
         for (int i = 1; i <= classcount; i++) {//해당요일 / 교시의 과목이름 불러오기
@@ -361,14 +364,153 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             }
         }
 
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(loot));//DB삽입용 이미지 변환
+        //요일,교시,시간변수참조하여 시간표DB에서 과목검색
+        //사진DB에 추가
+        switch (classtime) {
+            case 50:
+                if (classcount >= 1 && (Integer.parseInt(getdate.substring(11, 13)) == 8 && Integer.parseInt(getdate.substring(14, 16)) >= 40) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 9 && Integer.parseInt(getdate.substring(14, 16)) < 40)) {
+                    Log.d("교시", "1교시");
+                    searchTimetableDB(day, "first", uri, getdate.substring(0, 10));
+                } else if (classcount >= 2 && (Integer.parseInt(getdate.substring(11, 13)) == 9 && Integer.parseInt(getdate.substring(14, 16)) >= 40) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 10 && Integer.parseInt(getdate.substring(14, 16)) < 40)) {
+                    Log.d("교시", "2교시");
+                    searchTimetableDB(day, "second", uri, getdate.substring(0, 10));
+                } else if (classcount >= 3 && (Integer.parseInt(getdate.substring(11, 13)) == 10 && Integer.parseInt(getdate.substring(14, 16)) >= 40) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 11 && Integer.parseInt(getdate.substring(14, 16)) < 40)) {
+                    Log.d("교시", "3교시");
+                    searchTimetableDB(day, "third", uri, getdate.substring(0, 10));
+                } else if (classcount >= 4 && (Integer.parseInt(getdate.substring(11, 13)) == 11 && Integer.parseInt(getdate.substring(14, 16)) >= 40) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 12 && Integer.parseInt(getdate.substring(14, 16)) < 30)) {
+                    Log.d("교시", "4교시");
+                    searchTimetableDB(day, "forth", uri, getdate.substring(0, 10));
+                } else if (classcount >= 5 && (Integer.parseInt(getdate.substring(11, 13)) == 13 && Integer.parseInt(getdate.substring(14, 16)) >= 20) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 14 && Integer.parseInt(getdate.substring(14, 16)) < 20)){
+                    Log.d("교시", "5교시");
+                    searchTimetableDB(day, "fifth", uri, getdate.substring(0, 10));
+                } else if (classcount >= 6 && (Integer.parseInt(getdate.substring(11, 13)) == 14 && Integer.parseInt(getdate.substring(14, 16)) >= 20) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 15 && Integer.parseInt(getdate.substring(14, 16)) < 20)) {
+                    Log.d("교시", "6교시");
+                    searchTimetableDB(day, "sixth", uri, getdate.substring(0, 10));
+                } else if (classcount >= 7 && (Integer.parseInt(getdate.substring(11, 13)) == 15 && Integer.parseInt(getdate.substring(14, 16)) >= 20) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 16 && Integer.parseInt(getdate.substring(14, 16)) < 20)) {
+                    Log.d("교시", "7교시");
+                    searchTimetableDB(day, "seventh", uri, getdate.substring(0, 10));
+                } else if (classcount >= 8 && (Integer.parseInt(getdate.substring(11, 13)) == 16 && Integer.parseInt(getdate.substring(14, 16)) >= 20) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 17 && Integer.parseInt(getdate.substring(14, 16)) <= 10)) {
+                    Log.d("교시", "8교시");
+                    searchTimetableDB(day, "eighth", uri, getdate.substring(0, 10));
+                } else {
+                    Toast.makeText(this, "Not at School", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case 45:
+                if (classcount >= 1 && (Integer.parseInt(getdate.substring(11, 13)) == 8 && Integer.parseInt(getdate.substring(14, 16)) >= 40) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 9 && Integer.parseInt(getdate.substring(14, 16)) < 35)) {
+                    Log.d("교시", "1교시");
+                    searchTimetableDB(day, "first", uri, getdate.substring(0, 10));
+                } else if (classcount >= 2 && (Integer.parseInt(getdate.substring(11, 13)) == 9 && Integer.parseInt(getdate.substring(14, 16)) >= 35) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 10 && Integer.parseInt(getdate.substring(14, 16)) < 30)) {
+                    Log.d("교시", "2교시");
+                    searchTimetableDB(day, "second", uri, getdate.substring(0, 10));
+                } else if (classcount >= 3 && (Integer.parseInt(getdate.substring(11, 13)) == 10 && Integer.parseInt(getdate.substring(14, 16)) >= 30) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 11 && Integer.parseInt(getdate.substring(14, 16)) < 25)) {
+                    Log.d("교시", "3교시");
+                    searchTimetableDB(day, "third", uri, getdate.substring(0, 10));
+                } else if (classcount >= 4 && (Integer.parseInt(getdate.substring(11, 13)) == 11 && Integer.parseInt(getdate.substring(14, 16)) >= 25) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 12 && Integer.parseInt(getdate.substring(14, 16)) < 20)) {
+                    Log.d("교시", "4교시");
+                    searchTimetableDB(day, "forth", uri, getdate.substring(0, 10));
+                } else if (classcount >= 5 && (Integer.parseInt(getdate.substring(11, 13)) == 13 && Integer.parseInt(getdate.substring(14, 16)) >= 0) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 13 && Integer.parseInt(getdate.substring(14, 16)) < 55)){
+                    Log.d("교시", "5교시");
+                    searchTimetableDB(day, "fifth", uri, getdate.substring(0, 10));
+                } else if (classcount >= 6 && (Integer.parseInt(getdate.substring(11, 13)) == 13 && Integer.parseInt(getdate.substring(14, 16)) >= 55) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 14 && Integer.parseInt(getdate.substring(14, 16)) < 50)) {
+                    Log.d("교시", "6교시");
+                    searchTimetableDB(day, "sixth", uri, getdate.substring(0, 10));
+                } else if (classcount >= 7 && (Integer.parseInt(getdate.substring(11, 13)) == 14 && Integer.parseInt(getdate.substring(14, 16)) >= 50) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 15 && Integer.parseInt(getdate.substring(14, 16)) < 45)) {
+                    Log.d("교시", "7교시");
+                    searchTimetableDB(day, "seventh", uri, getdate.substring(0, 10));
+                } else if (classcount >= 8 && (Integer.parseInt(getdate.substring(11, 13)) == 15 && Integer.parseInt(getdate.substring(14, 16)) >= 45) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 16 && Integer.parseInt(getdate.substring(14, 16)) < 40)) {
+                    Log.d("교시", "8교시");
+                    searchTimetableDB(day, "eighth", uri, getdate.substring(0, 10));
+                }else {
+                    Toast.makeText(this, "Not at School", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case 40:
+                if (classcount >= 1 && (Integer.parseInt(getdate.substring(11, 13)) == 8 && Integer.parseInt(getdate.substring(14, 16)) >= 40) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 9 && Integer.parseInt(getdate.substring(14, 16)) < 30)) {
+                    Log.d("교시", "1교시");
+                    searchTimetableDB(day, "first", uri, getdate.substring(0, 10));
+                } else if (classcount >= 2 && (Integer.parseInt(getdate.substring(11, 13)) == 9 && Integer.parseInt(getdate.substring(14, 16)) >= 30) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 10 && Integer.parseInt(getdate.substring(14, 16)) < 20)) {
+                    Log.d("교시", "2교시");
+                    searchTimetableDB(day, "second", uri, getdate.substring(0, 10));
+                } else if (classcount >= 3 && (Integer.parseInt(getdate.substring(11, 13)) == 10 && Integer.parseInt(getdate.substring(14, 16)) >= 20) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 11 && Integer.parseInt(getdate.substring(14, 16)) < 10)) {
+                    Log.d("교시", "3교시");
+                    searchTimetableDB(day, "third", uri, getdate.substring(0, 10));
+                } else if (classcount >= 4 && (Integer.parseInt(getdate.substring(11, 13)) == 11 && Integer.parseInt(getdate.substring(14, 16)) >= 10) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 12 && Integer.parseInt(getdate.substring(14, 16)) < 0)) {
+                    Log.d("교시", "4교시");
+                    searchTimetableDB(day, "forth", uri, getdate.substring(0, 10));
+                } else if (classcount >= 5 && (Integer.parseInt(getdate.substring(11, 13)) == 12 && Integer.parseInt(getdate.substring(14, 16)) >= 0) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 12 && Integer.parseInt(getdate.substring(14, 16)) < 50)) {
+                    Log.d("교시", "5교시");
+                    searchTimetableDB(day, "fifth", uri, getdate.substring(0, 10));
+                } else if (classcount >= 6 && (Integer.parseInt(getdate.substring(11, 13)) == 13 && Integer.parseInt(getdate.substring(14, 16)) >= 30) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 14 && Integer.parseInt(getdate.substring(14, 16)) < 20)) {
+                    Log.d("교시", "6교시");
+                    searchTimetableDB(day, "sixth", uri, getdate.substring(0, 10));
+                } else if (classcount >= 7 && (Integer.parseInt(getdate.substring(11, 13)) == 14 && Integer.parseInt(getdate.substring(14, 16)) >= 20) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 15 && Integer.parseInt(getdate.substring(14, 16)) < 10)) {
+                    Log.d("교시", "7교시");
+                    searchTimetableDB(day, "seventh", uri, getdate.substring(0, 10));
+                } else if (classcount >= 8 && (Integer.parseInt(getdate.substring(11, 13)) == 15 && Integer.parseInt(getdate.substring(14, 16)) >= 10) ||
+                        (Integer.parseInt(getdate.substring(11, 13)) == 16 && Integer.parseInt(getdate.substring(14, 16)) < 0)) {
+                    Log.d("교시", "8교시");
+                    searchTimetableDB(day, "eighth", uri, getdate.substring(0, 10));
+                }else {
+                    Toast.makeText(this, "Not at School", Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
+
+    // 시간표 DB에서 검색하고 사진 DB에 넣기
+    public void searchTimetableDB(int day, String classtime, Uri uri, String date) {
+        // 시간표 DB 검색
+        Cursor cursor = timetableDb.rawQuery("select "+classtime+" from TIMETABLE where day = "+day+";", null);
+        cursor.moveToNext();
+        Log.d("subject", cursor.getString(0));
+
+        //사진 DB에 넣기
+        Bitmap image;
+        try {
+            image = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
+            final byte[] imageInByte = getBytes(image);
+            if(cursor.getString(0) != null){
+                ContentValues cv = new  ContentValues();
+                cv.put("subject", cursor.getString(0));
+                cv.put("image_data", imageInByte);
+                cv.put("image_date", date);
+                pictureDB.insert( "picture_data", null, cv);
+            }
+            //pictureDB.execSQL("insert into picture_data (subject, image_data, image_date) values ('"+cursor.getString(0)+"', "+imageInByte+", '"+date+"');");
+        }catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public static byte[] getBytes(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        byte[] data = stream.toByteArray();
-
-        PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
-        pictureDBHelper.insert(data, day, thatsubject);//사진DB에 추가
-
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
+        return stream.toByteArray();
     }
 
     public int getDateDay(String year, String month, String days, String dateType) throws Exception {
@@ -407,7 +549,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         }
         return day;
     }
-
 
     public int dateTOint(int y, int m, int d)//입력된 날짜를 일수로 변환
     {
@@ -486,6 +627,5 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         result = h * 10000 + m * 100;
         return result;
     }
-
 
 }
