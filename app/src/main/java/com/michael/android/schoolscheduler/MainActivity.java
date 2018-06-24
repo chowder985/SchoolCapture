@@ -344,6 +344,11 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         takenm = Integer.parseInt(time[1]);
         takens = Integer.parseInt(time[2]);
 
+        day = getDateDay(date[0], date[1], date[2], "yyyy-M-dd");//요일변수 세팅
+        if (day == 0) {
+            Toast.makeText(this, "시간표에 지정되지 않은 날짜에 촬영된 사진입니다", Toast.LENGTH_SHORT).show();
+            return;
+        }
         int search = dateTOint(y, m, d);
         ExceptionDB exceptionDB = new ExceptionDB(getApplicationContext());
         boolean def = exceptionDB.overlap(search);//예외처리DB검색
