@@ -344,13 +344,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         takenm = Integer.parseInt(time[1]);
         takens = Integer.parseInt(time[2]);
 
-//        day = getDateDay(date[0], date[1], date[2], "yyyy-M-dd");//요일변수 세팅
-//        if (day == 0) {
-//            Toast.makeText(this, "시간표에 지정되지 않은 시간에 촬영된 사진입니다", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//        Log.d("DAY", Integer.toString(day));
-
         int search = dateTOint(y, m, d);
         ExceptionDB exceptionDB = new ExceptionDB(getApplicationContext());
         boolean def = exceptionDB.overlap(search);//예외처리DB검색
@@ -374,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
     }
 
-    public void searchTimetableDB(String subject, Uri uri, String date, int orientation, String imagename) {
+    public void searchTimetableDB(String subject, Uri uri, String date, int orientation, String imagename) {//
         Bitmap image;
         try {
             String savepath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/imagedatas/";
@@ -389,6 +382,17 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 }
                 FileOutputStream out = new FileOutputStream(savepath+imagename);
                 rotated.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                SQLiteDatabase db = pictureDBHelper.getWritableDatabase();
+                // DB에 입력한 값으로 행 추가
+                Cursor c1 = db.rawQuery("select * from picture_data", null);
+                while(c1.moveToNext())
+                {
+                    if(c1.getString(2).equals(savepath+imagename))
+                    {
+                        Toast.makeText(this, "image already exist", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
                 pictureDBHelper.insert(savepath+imagename, date, subject);
                 out.close();
 
@@ -397,16 +401,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             }catch(IOException exception){
                 Log.e("IOException", exception.getMessage());
             }
-
-            /*
-            if (subject != null) {
-                ContentValues cv = new ContentValues();
-                cv.put("subject", subject);
-                cv.put("image_data", imageInByte);
-                cv.put("image_date", date);
-                pictureDB.insert("picture_data", null, cv);
-            }*/
-            //pictureDB.execSQL("insert into picture_data (subject, image_data, image_date) values ('"+cursor.getString(0)+"', "+imageInByte+", '"+date+"');");
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
