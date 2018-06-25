@@ -15,6 +15,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
     ArrayList<GalleryItem> mList;
     private SparseIntArray listPosition = new SparseIntArray();
     private HorizontalRecyclerAdapter.OnItemClickListener mItemClickListener;

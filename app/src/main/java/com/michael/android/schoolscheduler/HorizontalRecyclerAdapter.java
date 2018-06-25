@@ -1,5 +1,6 @@
 package com.michael.android.schoolscheduler;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
@@ -11,11 +12,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+
 import java.io.File;
 import java.util.ArrayList;
 
 public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private Context mContext;
     private ArrayList<String> mList;
     private OnItemClickListener mItemClickListener;
 
@@ -53,6 +57,7 @@ public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+        mContext = viewGroup.getContext();
         switch (i) {
             default: {
                 View v1 = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item_image, viewGroup, false);
@@ -66,50 +71,17 @@ public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
         switch (viewHolder.getItemViewType()) {
             default: {
                 CellViewHolder cellViewHolder = (CellViewHolder) viewHolder;
-                File imgFile = new File(mList.get(i));
-                Bitmap thumb = decodeSampledBitmapFromFile(imgFile, 100, 100);
-                cellViewHolder.mImageView.setImageBitmap(thumb);
+                String url = mList.get(i);
+                Glide.with(mContext)
+                        .load(url)
+                        .into(cellViewHolder.mImageView);
+//                File imgFile = new File(mList.get(i));
+//                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+//                Bitmap thumb = ThumbnailUtils.extractThumbnail(bitmap, 245, 245);
+//                cellViewHolder.mImageView.setImageBitmap(thumb);
                 break;
             }
         }
-    }
-
-    public static Bitmap decodeSampledBitmapFromFile(File file, int reqWidth, int reqHeight) {
-
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-    }
-
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) >= reqHeight
-                    && (halfWidth / inSampleSize) >= reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-
-        return inSampleSize;
     }
 
     @Override
