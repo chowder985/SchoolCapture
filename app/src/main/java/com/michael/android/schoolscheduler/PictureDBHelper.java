@@ -55,7 +55,7 @@ public class PictureDBHelper extends SQLiteOpenHelper {
                 System.out.println("file not Deleted :" + imagelocation);
             }
         }
-        db.execSQL("delete from picture_data where image_locaion='"+imagelocation+"';");
+        db.execSQL("delete from picture_data where image_location='"+imagelocation+"';");
 
         db.close();
     }

@@ -4,32 +4,21 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.provider.OpenableColumns;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 public class GalleryActivity extends AppCompatActivity {
 
@@ -146,12 +135,12 @@ public class GalleryActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.ascend:
+            /*case R.id.ascend:
 
                 return true;
             case R.id.descend:
 
-                return true;
+                return true;*/
             case R.id.detail:
                 Intent intent = new Intent(this, SubjectDetailActivity.class);
                 intent.putExtra("subject_name", subjectName);

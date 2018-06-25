@@ -124,14 +124,15 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                             }
                         }
                         c2.moveToFirst();
-
+                        PictureDBHelper delter = new PictureDBHelper(getApplicationContext());
+                        SQLiteDatabase del = delter.getWritableDatabase();
                         //pictureDB.execSQL("delete from picture_data where subject = '" + subjects.get(position) + "';");
-                        Cursor delete = pictureDB.rawQuery("select * from picture_data", null);
+                        Cursor delete = del.rawQuery("select * from picture_data", null);
                         while(delete.moveToNext())
                         {
                             if(delete.getString(1).equals(subjects.get(position)))
                             {
-                                pictureDBHelper.delete(delete.getString(2));
+                                delter.delete(delete.getString(2));
                             }
                         }
 
@@ -146,12 +147,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 return true;
             }
         });
-        timetableDB.close();
-        timetableDb.close();
-        pictureDBHelper.close();
-        pictureDB.close();
-
-
     }
 
     public void showPopup(View v) {
@@ -371,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             classcount = Integer.parseInt(exval[1]);//교시 시간변수 세팅
             classtime = Integer.parseInt(exval[2]);
         }
-
+        boolean seetted = false;
         for (int i = 1; i <= classcount; i++) {//해당요일 / 교시의 과목이름 불러오기
             int takentime = takenh * 10000 + takenm * 100 + takens;//요일,교시,시간변수참조하여 시간표DB에서 과목검색
             if (getstarttime(i, classtime) < takentime && getendtime(i, classtime) >= takentime)//찍은시간이 i교시이면// 종료시각은 다음시간 시작시간과 같음
@@ -380,9 +375,11 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 thatsubject = timetableDB.getsubjectname(day, i);
                 classposition = i;
                 timetableDB.close();
+                seetted = true;
             }
         }
-        searchTimetableDB(thatsubject, uri, s[0], orientation, loot, classposition);//사진DB에 추가
+        if(seetted)
+            searchTimetableDB(thatsubject, uri, s[0], orientation, loot, classposition);//사진DB에 추가
         exceptionDB.close();
     }
 
@@ -418,7 +415,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 pictureDBHelper.insert(savepath + imagename, date, subject, classtime);
                 bos.close();
                 out.close();
-                db.close();
                 pictureDBHelper.close();
 
             } catch (FileNotFoundException exception) {
