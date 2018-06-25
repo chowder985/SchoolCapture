@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.ThumbnailUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,7 +18,11 @@ import android.widget.Toast;
 
 import com.github.chrisbanes.photoview.PhotoView;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 public class ImageLookUp extends AppCompatActivity {
 
@@ -42,9 +47,14 @@ public class ImageLookUp extends AppCompatActivity {
 
         Intent intent = getIntent();
         imageLocation = intent.getStringExtra("image_data");
+        try {
+            InputStream is = new FileInputStream(imageLocation);
+            BufferedInputStream bis = new BufferedInputStream(is);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         File imgFile = new File(imageLocation);
         Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-
         PhotoView photoView = (PhotoView) findViewById(R.id.photo_view);
         photoView.setImageBitmap(bitmap);
     }

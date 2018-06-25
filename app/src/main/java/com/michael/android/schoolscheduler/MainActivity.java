@@ -44,6 +44,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -292,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             e.printStackTrace();
             Toast.makeText(this, "Unable to load Image", Toast.LENGTH_LONG)
                     .show();
+
         }
     }
 
@@ -325,6 +327,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             Log.d("LOCATION", loot);
             getdate = exif.getAttribute(ExifInterface.TAG_DATETIME);
             orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
+           // if(getdate==null||orientation==null)
+
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "EXIF LOADING ERROR", Toast.LENGTH_SHORT).show();
@@ -372,9 +376,11 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     public void searchTimetableDB(String subject, Uri uri, String date, int orientation, String path) {//
         Bitmap image;
         try {
+            Log.d("SUBJECT",subject);
+            Toast.makeText(this, subject, Toast.LENGTH_SHORT).show();
             String inputpath[] = path.split("/");
             String imagename = inputpath[inputpath.length-1];
-            String savepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/imagedatas/";
+            String savepath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/.imagedatas/";
             image = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
             Bitmap rotated = rotateBitmap(image, orientation);
             PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
@@ -385,7 +391,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                     file_path.mkdirs();
                 }
                 FileOutputStream out = new FileOutputStream(savepath + imagename);
-                rotated.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                BufferedOutputStream bos = new BufferedOutputStream(out);
+                rotated.compress(Bitmap.CompressFormat.JPEG, 100, bos);
                 SQLiteDatabase db = pictureDBHelper.getWritableDatabase();
                 // DB에 입력한 값으로 행 추가
                 Cursor c1 = db.rawQuery("select * from picture_data", null);
@@ -396,6 +403,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                     }
                 }
                 pictureDBHelper.insert(savepath + imagename, date, subject);
+                bos.close();
                 out.close();
 
             } catch (FileNotFoundException exception) {

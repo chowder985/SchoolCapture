@@ -2,6 +2,7 @@ package com.michael.android.schoolscheduler;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -67,7 +68,8 @@ public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                 CellViewHolder cellViewHolder = (CellViewHolder) viewHolder;
                 File imgFile = new File(mList.get(i));
                 Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                cellViewHolder.mImageView.setImageBitmap(bitmap);
+                Bitmap thumb = ThumbnailUtils.extractThumbnail(bitmap, 245, 245);
+                cellViewHolder.mImageView.setImageBitmap(thumb);
                 break;
             }
         }
