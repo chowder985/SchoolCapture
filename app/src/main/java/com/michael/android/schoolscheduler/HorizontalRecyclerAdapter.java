@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -74,6 +75,11 @@ public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                 String url = mList.get(i);
                 Glide.with(mContext)
                         .load(url)
+                        .apply(new RequestOptions()
+                                .placeholder(R.mipmap.ic_launcher)
+                                .override(245, 245)
+                                .fitCenter()
+                        )
                         .into(cellViewHolder.mImageView);
 //                File imgFile = new File(mList.get(i));
 //                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());

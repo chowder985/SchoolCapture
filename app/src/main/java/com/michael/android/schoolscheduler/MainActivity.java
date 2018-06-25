@@ -454,7 +454,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         return day;
     }
 
-    public int dateTOint(int y, int m, int d)//입력된 날짜를 일수로 변환
+    public static int dateTOint(int y, int m, int d)//입력된 날짜를 일수로 변환
     {
         int idate, upcount = 0;
         for (int i = 1; i < y; i++) {

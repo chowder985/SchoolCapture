@@ -92,6 +92,18 @@ public class GalleryActivity extends AppCompatActivity {
             GalleryItem item = new GalleryItem(subList, dateList.get(i));
             list.add(item);
         }
+//        for(int i=0; i<list.size()-1; i++){
+//            GalleryItem recentItem = list.get(i);
+//            int days = MainActivity.dateTOint(Integer.parseInt(recentItem.getDate().substring(0, 4)), Integer.parseInt(recentItem.getDate().substring(5, 7), Integer.parseInt(recentItem.getDate().substring(8, 10))));
+//            for(int j=i+1; j<list.size(); j++){
+//                int days2 = MainActivity.dateTOint(Integer.parseInt(list.get(j).getDate().substring(0, 4)), Integer.parseInt(list.get(j).getDate().substring(5, 7), Integer.parseInt(list.get(j).getDate().substring(8, 10));
+//                if(days<days2){
+//                    recentItem = list.get(j);
+//                    list.set(j, list.get(i));
+//                    list.set(i, recentItem);
+//                }
+//            }
+//        }
 
         galleryList = (RecyclerView) findViewById(R.id.gallery_list);
         galleryList.setHasFixedSize(false);
