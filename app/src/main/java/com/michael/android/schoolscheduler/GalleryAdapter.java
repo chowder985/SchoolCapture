@@ -56,7 +56,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 cellViewHolder.text.setText(mList.get(position).getDate());
                 cellViewHolder.mRecyclerView.setHasFixedSize(true);
                 LinearLayoutManager layoutManager = new GridLayoutManager(mContext, 4);
-                layoutManager.setOrientation(GridLayoutManager.HORIZONTAL);
+                //layoutManager.setOrientation(GridLayoutManager.HORIZONTAL);
                 cellViewHolder.mRecyclerView.setLayoutManager(layoutManager);
 
                 HorizontalRecyclerAdapter adapter = new HorizontalRecyclerAdapter(mList.get(position).getList());
