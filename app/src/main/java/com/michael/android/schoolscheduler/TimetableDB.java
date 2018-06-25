@@ -60,6 +60,47 @@ public class TimetableDB extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void delete(int day, int classtime) {
+        SQLiteDatabase db = getWritableDatabase();
+        // 입력한 항목과 일치하는 행의 가격 정보 수정
+        switch (classtime) {
+            case 1:
+                db.execSQL("UPDATE TIMETABLE SET first= null WHERE day=" + day + ";");
+                break;
+            case 2:
+                db.execSQL("UPDATE TIMETABLE SET second= null WHERE day=" + day + ";");
+                break;
+            case 3:
+                db.execSQL("UPDATE TIMETABLE SET third= null WHERE day=" + day + ";");
+                break;
+            case 4:
+                db.execSQL("UPDATE TIMETABLE SET forth= null WHERE day=" + day + ";");
+                break;
+            case 5:
+                db.execSQL("UPDATE TIMETABLE SET fifth= null WHERE day=" + day + ";");
+                break;
+            case 6:
+                db.execSQL("UPDATE TIMETABLE SET sixth= null WHERE day=" + day + ";");
+                break;
+            case 7:
+                db.execSQL("UPDATE TIMETABLE SET seventh= null WHERE day=" + day + ";");
+                break;
+            case 8:
+                db.execSQL("UPDATE TIMETABLE SET eighth= null WHERE day=" + day + ";");
+                break;
+            default:
+                break;
+        }
+        db.close();
+    }
+
+    public void deletebySubject(String subject) {
+        SQLiteDatabase db = getWritableDatabase();
+        // 입력한 항목과 일치하는 행 삭제
+        db.execSQL("DELETE FROM TIMETABLE WHERE subject='" + subject + "';");
+        db.close();
+    }
+
 
     public String[][] getResult() {
         // 읽기가 가능하게 DB 열기

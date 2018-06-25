@@ -38,10 +38,16 @@ public class PictureDBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void delete(String imagelocation) {
+    public void deletebyLocation(String imagelocation) {
         SQLiteDatabase db = getWritableDatabase();
         // 입력한 항목과 일치하는 행 삭제
         db.execSQL("DELETE FROM picture_data WHERE image_location='" + imagelocation+ "';");
+        db.close();
+    }
+    public void deletebySubject(String subject) {
+        SQLiteDatabase db = getWritableDatabase();
+        // 입력한 항목과 일치하는 행 삭제
+        db.execSQL("DELETE FROM picture_data WHERE subject='" + subject+ "';");
         db.close();
     }
 

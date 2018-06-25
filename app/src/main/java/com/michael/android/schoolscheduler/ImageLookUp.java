@@ -47,12 +47,6 @@ public class ImageLookUp extends AppCompatActivity {
 
         Intent intent = getIntent();
         imageLocation = intent.getStringExtra("image_data");
-        try {
-            InputStream is = new FileInputStream(imageLocation);
-            BufferedInputStream bis = new BufferedInputStream(is);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
         File imgFile = new File(imageLocation);
         Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
         PhotoView photoView = (PhotoView) findViewById(R.id.photo_view);

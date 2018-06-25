@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
 
-public class Timetable extends AppCompatActivity implements View.OnClickListener{
+public class Timetable extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener{
      Button timetableinput[][] = new Button[9][6];
      int idval;
 
@@ -96,6 +96,7 @@ public class Timetable extends AppCompatActivity implements View.OnClickListener
                 if (i == 0 || j == 0)
                     continue;
                 timetableinput[i][j].setOnClickListener(this);
+                timetableinput[i][j].setOnLongClickListener(this);
                 timetableinput[i][j].setText(currenttable[j-1][i-1]);
                 //시간표DB에서 불러와 버튼 텍스트 설정
             }
@@ -163,4 +164,22 @@ public class Timetable extends AppCompatActivity implements View.OnClickListener
         });
     }
 
+
+    @Override
+    public boolean onLongClick(View v) {
+        idval = v.getId();
+        for(int i=1;i<=8;i++)
+        {
+            for(int j=1;j<=5;j++)
+            {
+                if(timetableinput[i][j].getId()==idval)
+                {
+                    TimetableDB timetableDB = new TimetableDB(getApplicationContext());
+                    timetableDB.delete(j, i);
+                    timetableinput[i][j].setText(null);
+                }
+            }
+        }
+        return true;
+    }
 }
