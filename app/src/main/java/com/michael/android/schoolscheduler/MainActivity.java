@@ -1,10 +1,8 @@
 package com.michael.android.schoolscheduler;
 
 import android.Manifest;
-import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,18 +16,15 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.CursorLoader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -45,12 +40,10 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -88,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         timetableDB = new TimetableDB(this);
         timetableDb = timetableDB.getWritableDatabase();
 
-        PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
+        final PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
         pictureDB = pictureDBHelper.getWritableDatabase();
 
         subjectList = (ListView) findViewById(R.id.list);
@@ -132,7 +125,15 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                         }
                         c2.moveToFirst();
 
-                        pictureDB.execSQL("delete from picture_data where subject = '" + subjects.get(position) + "';");
+                        //pictureDB.execSQL("delete from picture_data where subject = '" + subjects.get(position) + "';");
+                        Cursor delete = pictureDB.rawQuery("select * from picture_data", null);
+                        while(delete.moveToNext())
+                        {
+                            if(delete.getString(1).equals(subjects.get(position)))
+                            {
+                                pictureDBHelper.delete(delete.getString(2));
+                            }
+                        }
 
                         String[] selectionArgs = {subjects.get(position)};
                         subjects.remove(position);
@@ -145,6 +146,12 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 return true;
             }
         });
+        timetableDB.close();
+        timetableDb.close();
+        pictureDBHelper.close();
+        pictureDB.close();
+
+
     }
 
     public void showPopup(View v) {
@@ -319,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         int day, classcount = 7, classtime = 50, classposition=0;
         String thatsubject = "";
         String getdate = "";
-        int orientation = 0;
+        int orientation = -28;
         //날짜받음
         ExifInterface exif;
         try {
@@ -327,7 +334,11 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             Log.d("LOCATION", loot);
             getdate = exif.getAttribute(ExifInterface.TAG_DATETIME);
             orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
-           // if(getdate==null||orientation==null)
+           if(getdate==null||orientation==-28)
+           {
+               Toast.makeText(this, "unable to load EXIF", Toast.LENGTH_SHORT).show();
+               return;
+           }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -368,13 +379,14 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 TimetableDB timetableDB = new TimetableDB(this);
                 thatsubject = timetableDB.getsubjectname(day, i);
                 classposition = i;
+                timetableDB.close();
             }
         }
         searchTimetableDB(thatsubject, uri, s[0], orientation, loot, classposition);//사진DB에 추가
-
+        exceptionDB.close();
     }
 
-    public void searchTimetableDB(String subject, Uri uri, String date, int orientation, String path, int classtime) {//
+    public void searchTimetableDB(@NonNull String subject, Uri uri, String date, int orientation, String path, int classtime) {//
         Bitmap image;
         try {
             Log.d("SUBJECT",subject);
@@ -406,6 +418,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 pictureDBHelper.insert(savepath + imagename, date, subject, classtime);
                 bos.close();
                 out.close();
+                db.close();
+                pictureDBHelper.close();
 
             } catch (FileNotFoundException exception) {
                 Log.e("FileNotFoundException", exception.getMessage());
