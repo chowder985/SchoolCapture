@@ -1,6 +1,8 @@
 package com.michael.android.schoolscheduler;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +14,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class Timetable extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener{
      Button timetableinput[][] = new Button[9][6];
@@ -137,6 +144,7 @@ public class Timetable extends AppCompatActivity implements View.OnClickListener
         String subjectline = subjectDB.getsubject();
         String subjectlist [] = subjectline.split("\n");
         PopupMenu menu = new PopupMenu(this, v);
+
         for(int i=1;i<=subjectlist.length;i++)
         {
             //아이템추가
@@ -153,6 +161,14 @@ public class Timetable extends AppCompatActivity implements View.OnClickListener
                     {
                         if(timetableinput[i][j].getId()==idval)
                         {
+                            if(!timetableinput[i][j].equals(null))//과목을 바꾼것이면
+                            {
+                                try {
+                                    changesubjectday(timetableinput[i][j].getText().toString(), subject, j);
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                             timetableinput[i][j].setText(subject);
                             TimetableDB timetableDB = new TimetableDB(getApplicationContext());
                             timetableDB.update(j, i, subject);
@@ -182,4 +198,61 @@ public class Timetable extends AppCompatActivity implements View.OnClickListener
         }
         return true;
     }
+
+    public void changesubjectday(String orisub, String newsub, int day) throws ParseException {
+        PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
+        SQLiteDatabase replace = pictureDBHelper.getWritableDatabase();
+        Cursor cursor = replace.rawQuery("select image_location, image_date from picture_data where subject='"+orisub+"'", null);
+        while(cursor.moveToNext())
+        {
+            String date = cursor.getString(1);
+            String getday[] = date.split(":");
+            int pickday = getDateDay(getday[0], getday[1], getday[2], "yyyy-M-dd");
+            if(day==pickday)
+            {
+                pictureDBHelper.update(cursor.getString(0), newsub);
+            }
+        }
+
+
+    }
+
+    public int getDateDay(String year, String month, String days, String dateType) throws ParseException {
+
+        String date = year + "-" + month + "-" + days;
+        int day = 0;
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat(dateType);
+        Date nDate = dateFormat.parse(date);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(nDate);
+        int dayNum = cal.get(Calendar.DAY_OF_WEEK);
+
+        switch (dayNum) {
+            case 1:
+                break;
+            case 2:
+                day = 1;//월
+                break;
+            case 3:
+                day = 2;
+                break;
+            case 4:
+                day = 3;
+                break;
+            case 5:
+                day = 4;
+                break;
+            case 6:
+                day = 5;//금
+                break;
+            case 7:
+                break;
+
+        }
+        return day;
+    }
+
+
 }
