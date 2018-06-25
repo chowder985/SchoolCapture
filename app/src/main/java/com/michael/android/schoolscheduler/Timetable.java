@@ -164,7 +164,7 @@ public class Timetable extends AppCompatActivity implements View.OnClickListener
                             if(!timetableinput[i][j].equals(null))//과목을 바꾼것이면
                             {
                                 try {
-                                    changesubjectday(timetableinput[i][j].getText().toString(), subject, j);
+                                    changesubjectday(timetableinput[i][j].getText().toString(), subject, j, i);
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
@@ -199,16 +199,16 @@ public class Timetable extends AppCompatActivity implements View.OnClickListener
         return true;
     }
 
-    public void changesubjectday(String orisub, String newsub, int day) throws ParseException {
+    public void changesubjectday(String orisub, String newsub, int day, int classtime) throws ParseException {
         PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
         SQLiteDatabase replace = pictureDBHelper.getWritableDatabase();
-        Cursor cursor = replace.rawQuery("select image_location, image_date from picture_data where subject='"+orisub+"'", null);
+        Cursor cursor = replace.rawQuery("select image_location, image_date, classtime from picture_data where subject='"+orisub+"'", null);
         while(cursor.moveToNext())
         {
             String date = cursor.getString(1);
             String getday[] = date.split(":");
             int pickday = getDateDay(getday[0], getday[1], getday[2], "yyyy-M-dd");
-            if(day==pickday)
+            if(day==pickday&&cursor.getInt(2)==classtime)
             {
                 pictureDBHelper.update(cursor.getString(0), newsub);
             }

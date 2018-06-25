@@ -25,16 +25,17 @@ public class PictureDBHelper extends SQLiteOpenHelper {
                 "(_id integer primary key autoincrement,"
                 + "subject text,"
                 + "image_location text not null unique ,"
-                + "image_date text)";
+                + "image_date text, "
+                + "classtime integer)";
 
         db.execSQL(memoSQL);
     }
 
-    public void insert(String imagelocation, String day, String subject) {
+    public void insert(String imagelocation, String day, String subject, int classtime) {
         // 읽고 쓰기가 가능하게 DB 열기
         SQLiteDatabase db = getWritableDatabase();
         // DB에 입력한 값으로 행 추가
-        db.execSQL("INSERT INTO picture_data (image_location, subject, image_date) values ('" + imagelocation + "','" + subject + "', '" + day + "');");
+        db.execSQL("INSERT INTO picture_data (image_location, subject, image_date, classtime) values ('" + imagelocation + "','" + subject + "', '" + day + "', " + classtime + ");");
         db.close();
     }
 
