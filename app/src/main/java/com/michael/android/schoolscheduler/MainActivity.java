@@ -246,11 +246,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                     intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                     intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
                     startActivityForResult(Intent.createChooser(intent, "Select Picture"), 0);
-//                    Intent i = getBaseContext().getPackageManager()
-//                            .getLaunchIntentForPackage( getBaseContext().getPackageName() );
-//                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                    finishAndRemoveTask();
-//                    startActivity(i);
                 } else {
                     //do something like displaying a message that he didn`t allow the app to access gallery and you wont be able to let him select from gallery
                 }
@@ -288,12 +283,10 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                     }
                 }
             } else {//이미지를 고르지 않으면
-                Toast.makeText(this, "You haven't picked Image",
-                        Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Unable to load Image", Toast.LENGTH_LONG)
+            Toast.makeText(this, "로드할 수 없는 이미지가 있습니다", Toast.LENGTH_LONG)
                     .show();
 
         }
@@ -331,13 +324,13 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
            if(getdate==null||orientation==-28)
            {
-               Toast.makeText(this, "unable to load EXIF", Toast.LENGTH_SHORT).show();
+               //Toast.makeText(this, "unable to load EXIF", Toast.LENGTH_SHORT).show();
                return;
            }
 
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(this, "EXIF LOADING ERROR", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "EXIF LOADING ERROR", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -408,7 +401,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 Cursor c1 = db.rawQuery("select * from picture_data", null);
                 while (c1.moveToNext()) {
                     if (c1.getString(2).equals(savepath + imagename)) {
-                        Toast.makeText(this, "image already exist", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "이미 추가된 사진입니다", Toast.LENGTH_SHORT).show();
                         return;
                     }
                 }

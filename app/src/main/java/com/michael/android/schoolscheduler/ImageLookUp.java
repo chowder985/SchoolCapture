@@ -1,28 +1,21 @@
 package com.michael.android.schoolscheduler;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.media.ThumbnailUtils;
+import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.github.chrisbanes.photoview.PhotoView;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 
 public class ImageLookUp extends AppCompatActivity {
 
@@ -75,20 +68,4 @@ public class ImageLookUp extends AppCompatActivity {
         }
     }
 
-    public boolean compareImages(Bitmap bitmap1, Bitmap bitmap2) {
-        if (bitmap1.getWidth() != bitmap2.getWidth() ||
-                bitmap1.getHeight() != bitmap2.getHeight()) {
-            return false;
-        }
-
-        for (int y = 0; y < bitmap1.getHeight(); y++) {
-            for (int x = 0; x < bitmap1.getWidth(); x++) {
-                if (bitmap1.getPixel(x, y) != bitmap2.getPixel(x, y)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
 }

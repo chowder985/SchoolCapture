@@ -56,7 +56,6 @@ public class PictureDBHelper extends SQLiteOpenHelper {
             }
         }
         db.execSQL("delete from picture_data where image_location='"+imagelocation+"';");
-
         db.close();
     }
 

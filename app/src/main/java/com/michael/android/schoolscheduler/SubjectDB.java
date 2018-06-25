@@ -26,31 +26,6 @@ public class SubjectDB extends SQLiteOpenHelper {
 
     }
 
-    public void insert(String subject, String teacher, String location, String email, String number) {
-        // 읽고 쓰기가 가능하게 DB 열기
-        SQLiteDatabase db = getWritableDatabase();
-        // DB에 입력한 값으로 행 추가
-        db.execSQL("INSERT INTO SUBJECT (subject, teacher, location, email, number) VALUES ('" + subject + "', '" + teacher + "', '" + location + "', '" + email + "', '"+number+"');");
-        db.close();
-    }
-
-    public void update(String subject, String teacher, String location, String email, String number) {
-        SQLiteDatabase db = getWritableDatabase();
-        // 입력한 항목과 일치하는 행의 가격 정보 수정
-        db.execSQL("UPDATE SUBJECT SET teacher='" + teacher + "' WHERE subject='" + subject + "';");
-        db.execSQL("UPDATE SUBJECT SET location='" + location + "' WHERE subject='" + subject + "';");
-        db.execSQL("UPDATE SUBJECT SET email='" + email + "' WHERE subject='" + subject + "';");
-        db.execSQL("UPDATE SUBJECT SET number='" + number + "' WHERE subject='" + subject + "';");
-        db.close();
-    }
-
-    public void delete(String subject) {
-        SQLiteDatabase db = getWritableDatabase();
-        // 입력한 항목과 일치하는 행 삭제
-        db.execSQL("DELETE FROM SUBJECT WHERE date='" + subject + "';");
-        db.close();
-    }
-
     public String getsubject() {
         // 읽기가 가능하게 DB 열기
         SQLiteDatabase db = getReadableDatabase();

@@ -75,10 +75,6 @@ public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                                 .centerCrop()
                         )
                         .into(cellViewHolder.mImageView);
-//                File imgFile = new File(mList.get(i));
-//                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-//                Bitmap thumb = ThumbnailUtils.extractThumbnail(bitmap, 245, 245);
-//                cellViewHolder.mImageView.setImageBitmap(thumb);
                 break;
             }
         }
