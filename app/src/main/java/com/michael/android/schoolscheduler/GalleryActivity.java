@@ -80,6 +80,7 @@ public class GalleryActivity extends AppCompatActivity {
             }
             GalleryItem item = new GalleryItem(subList, dateList.get(i));
             list.add(item);
+            c2.close();
         }
 
         galleryList = (RecyclerView) findViewById(R.id.gallery_list);
