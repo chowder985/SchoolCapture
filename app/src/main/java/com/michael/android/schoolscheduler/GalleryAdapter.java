@@ -55,8 +55,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 CellViewHolder cellViewHolder = (CellViewHolder) viewHolder;
                 cellViewHolder.text.setText(mList.get(position).getDate());
                 cellViewHolder.mRecyclerView.setHasFixedSize(true);
-                LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
-                layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+                LinearLayoutManager layoutManager = new GridLayoutManager(mContext, 4);
+                layoutManager.setOrientation(GridLayoutManager.HORIZONTAL);
                 cellViewHolder.mRecyclerView.setLayoutManager(layoutManager);
 
                 HorizontalRecyclerAdapter adapter = new HorizontalRecyclerAdapter(mList.get(position).getList());
@@ -76,7 +76,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onViewRecycled(RecyclerView.ViewHolder viewHolder) {
         final int position = viewHolder.getAdapterPosition();
         CellViewHolder cellViewHolder = (CellViewHolder) viewHolder;
-        LinearLayoutManager layoutManager = ((LinearLayoutManager) cellViewHolder.mRecyclerView.getLayoutManager());
+        LinearLayoutManager layoutManager = ((GridLayoutManager) cellViewHolder.mRecyclerView.getLayoutManager());
         int firstVisiblePosition = layoutManager.findFirstVisibleItemPosition();
         listPosition.put(position, firstVisiblePosition);
 
