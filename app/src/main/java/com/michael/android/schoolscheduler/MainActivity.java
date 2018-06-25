@@ -316,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         //loot input format /storage/emulated/0/DCIM/Camera/20180611_161245.jpg
         int m, y, d;
         int takenh, takenm, takens;
-        int day, classcount = 7, classtime = 50;
+        int day, classcount = 7, classtime = 50, classposition=0;
         String thatsubject = "";
         String getdate = "";
         int orientation = 0;
@@ -367,13 +367,14 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             {
                 TimetableDB timetableDB = new TimetableDB(this);
                 thatsubject = timetableDB.getsubjectname(day, i);
+                classposition = i;
             }
         }
-        searchTimetableDB(thatsubject, uri, s[0], orientation, loot);//사진DB에 추가
+        searchTimetableDB(thatsubject, uri, s[0], orientation, loot, classposition);//사진DB에 추가
 
     }
 
-    public void searchTimetableDB(String subject, Uri uri, String date, int orientation, String path) {//
+    public void searchTimetableDB(String subject, Uri uri, String date, int orientation, String path, int classtime) {//
         Bitmap image;
         try {
             Log.d("SUBJECT",subject);
@@ -402,7 +403,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                         return;
                     }
                 }
-                pictureDBHelper.insert(savepath + imagename, date, subject);
+                pictureDBHelper.insert(savepath + imagename, date, subject, classtime);
                 bos.close();
                 out.close();
 
