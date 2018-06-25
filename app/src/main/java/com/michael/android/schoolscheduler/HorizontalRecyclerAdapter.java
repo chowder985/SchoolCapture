@@ -67,7 +67,7 @@ public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
             default: {
                 CellViewHolder cellViewHolder = (CellViewHolder) viewHolder;
                 File imgFile = new File(mList.get(i));
-                Bitmap thumb = decodeSampledBitmapFromFile(imgFile, 245, 245);
+                Bitmap thumb = decodeSampledBitmapFromFile(imgFile, 100, 100);
                 cellViewHolder.mImageView.setImageBitmap(thumb);
                 break;
             }
