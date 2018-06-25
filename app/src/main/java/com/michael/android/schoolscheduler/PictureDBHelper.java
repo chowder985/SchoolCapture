@@ -21,7 +21,7 @@ public class PictureDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String memoSQL= "create table picture_data " +
+        String memoSQL = "create table picture_data " +
                 "(_id integer primary key autoincrement,"
                 + "subject text,"
                 + "image_location text not null unique ,"
@@ -34,27 +34,22 @@ public class PictureDBHelper extends SQLiteOpenHelper {
         // 읽고 쓰기가 가능하게 DB 열기
         SQLiteDatabase db = getWritableDatabase();
         // DB에 입력한 값으로 행 추가
-        db.execSQL("INSERT INTO picture_data (image_location, subject, image_date) values ('"+imagelocation+"','"+subject+"', '"+day+"');");
+        db.execSQL("INSERT INTO picture_data (image_location, subject, image_date) values ('" + imagelocation + "','" + subject + "', '" + day + "');");
         db.close();
     }
 
-    public void deletebyLocation(String imagelocation) {
+    public void update(String imagelocation, String subject) {
+        // 읽고 쓰기가 가능하게 DB 열기
         SQLiteDatabase db = getWritableDatabase();
-        // 입력한 항목과 일치하는 행 삭제
-        db.execSQL("DELETE FROM picture_data WHERE image_location='" + imagelocation+ "';");
-        db.close();
-    }
-    public void deletebySubject(String subject) {
-        SQLiteDatabase db = getWritableDatabase();
-        // 입력한 항목과 일치하는 행 삭제
-        db.execSQL("DELETE FROM picture_data WHERE subject='" + subject+ "';");
+        // DB에 입력한 값으로 행 추가
+        db.execSQL("UPDATE picture_data SET subject= '" + subject + "' WHERE image_location='" + imagelocation + "';");
         db.close();
     }
 
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if(newVersion==DATABASE_VERSION){
+        if (newVersion == DATABASE_VERSION) {
             db.execSQL("drop table picture_data");
             onCreate(db);
         }
