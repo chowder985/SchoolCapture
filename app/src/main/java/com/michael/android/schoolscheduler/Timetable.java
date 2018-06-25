@@ -108,6 +108,7 @@ public class Timetable extends AppCompatActivity implements View.OnClickListener
                 //시간표DB에서 불러와 버튼 텍스트 설정
             }
         }
+        timetableDB.close();
 
     }
 
@@ -172,6 +173,7 @@ public class Timetable extends AppCompatActivity implements View.OnClickListener
                             timetableinput[i][j].setText(subject);
                             TimetableDB timetableDB = new TimetableDB(getApplicationContext());
                             timetableDB.update(j, i, subject);
+                            timetableDB.close();
                         }
                     }
                 }
@@ -193,9 +195,11 @@ public class Timetable extends AppCompatActivity implements View.OnClickListener
                     TimetableDB timetableDB = new TimetableDB(getApplicationContext());
                     timetableDB.delete(j, i);
                     timetableinput[i][j].setText(null);
+                    timetableDB.close();
                 }
             }
         }
+
         return true;
     }
 
@@ -213,8 +217,9 @@ public class Timetable extends AppCompatActivity implements View.OnClickListener
                 pictureDBHelper.update(cursor.getString(0), newsub);
             }
         }
-
-
+        pictureDBHelper.close();
+        replace.close();
+        cursor.close();
     }
 
     public int getDateDay(String year, String month, String days, String dateType) throws ParseException {
