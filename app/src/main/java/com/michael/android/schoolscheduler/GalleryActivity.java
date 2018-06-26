@@ -63,13 +63,14 @@ public class GalleryActivity extends AppCompatActivity {
         PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
         pictureDB = pictureDBHelper.getWritableDatabase();
         Cursor c1 = pictureDB.rawQuery("select subject, image_location, image_date from picture_data", null);
-
+        Log.d("Image Count", String.valueOf(c1.getCount()));
         c1.moveToFirst();
-        while(c1.moveToNext()){
-            if(!dateList.contains(c1.getString(2))&& c1.getString(0).equals(subjectName)){//해당과목중에 날짜리스트중 추가가 안되어있으면
+        do{
+            if(c1.getCount()>0 && !dateList.contains(c1.getString(2)) && c1.getString(0) != null && c1.getString(0).equals(subjectName)){//해당과목중에 날짜리스트중 추가가 안되어있으면
                 dateList.add(c1.getString(2));
             }
-        }
+        }while(c1.moveToNext());
+        Log.d("Date List Size", String.valueOf(dateList.size()));
         c1.moveToFirst();
         for(int i=0; i<dateList.size(); i++){
             subList = new ArrayList<String>();
