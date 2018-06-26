@@ -319,7 +319,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         ExifInterface exif;
         try {
             exif = new ExifInterface(loot);
-            Log.d("LOCATION", loot);
             getdate = exif.getAttribute(ExifInterface.TAG_DATETIME);
             orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
            if(getdate==null||orientation==-28)
@@ -371,6 +370,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 seetted = true;
             }
         }
+        Log.d("<ALLINFO>", getdate+takenh+takenm+takens+day+classcount+classtime+thatsubject);
         if(seetted)
             searchTimetableDB(thatsubject, uri, s[0], orientation, loot, classposition);//사진DB에 추가
         exceptionDB.close();
