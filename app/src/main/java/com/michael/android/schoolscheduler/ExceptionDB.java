@@ -54,19 +54,18 @@ public class ExceptionDB extends SQLiteOpenHelper {
     public String getResult(int date) {
         // 읽기가 가능하게 DB 열기
         SQLiteDatabase db = getReadableDatabase();
-        String result = "";
+        String result = new String();
 
         // DB에 있는 데이터를 쉽게 처리하기 위해 Cursor를 사용하여 테이블에 있는 모든 데이터 출력
         Cursor cursor = db.rawQuery("SELECT * FROM EXCEPTIONDATE", null);
         while (cursor.moveToNext()) {
             if(cursor.getInt(cursor.getColumnIndex("date")) == date)//해당 날짜의 값만 출
             {
-                result += cursor.getString(1)//date
+                result = cursor.getString(1)//date
                         + "-"
-                        + cursor.getString(2)//count
+                        + cursor.getInt(2)//count
                         + "-"
-                        + cursor.getInt(3)//time
-                        + "\n";
+                        + cursor.getInt(3);//time
             }
         }
         return result;

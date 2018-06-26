@@ -356,8 +356,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         {
             String exception = exceptionDB.getResult(search);
             String exval[] = exception.split("-");
-            classcount = Integer.parseInt(exval[1]);//교시 시간변수 세팅
-            classtime = Integer.parseInt(exval[2]);
+            classcount = Integer.valueOf(exval[1]);//교시 시간변수 세팅
+            classtime = Integer.valueOf(exval[2]);
         }
         boolean seetted = false;
         for (int i = 1; i <= classcount; i++) {//해당요일 / 교시의 과목이름 불러오기
