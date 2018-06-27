@@ -324,6 +324,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
            if(getdate==null||orientation==-28)
            {
                //Toast.makeText(this, "unable to load EXIF", Toast.LENGTH_SHORT).show();
+               Log.d("WARNING","NO EXIF");
                return;
            }
 
@@ -642,7 +643,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
-
         return null;
     }
 
