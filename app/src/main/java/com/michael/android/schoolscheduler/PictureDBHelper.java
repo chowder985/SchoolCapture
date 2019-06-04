@@ -1,14 +1,10 @@
 package com.michael.android.schoolscheduler;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteStatement;
-import android.graphics.Bitmap;
-import android.provider.MediaStore;
 
-import java.io.ByteArrayOutputStream;
+import java.io.File;
 
 
 public class PictureDBHelper extends SQLiteOpenHelper {
@@ -44,6 +40,22 @@ public class PictureDBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         // DB에 입력한 값으로 행 추가
         db.execSQL("UPDATE picture_data SET subject= '" + subject + "' WHERE image_location='" + imagelocation + "';");
+        db.close();
+    }
+
+    public void delete(String imagelocation) {
+        // 읽고 쓰기가 가능하게 DB 열기
+        SQLiteDatabase db = getWritableDatabase();
+        // DB에 입력한 값으로 행 추가
+        File fdelete = new File(imagelocation);
+        if (fdelete.exists()) {
+            if (fdelete.delete()) {
+                System.out.println("file Deleted :" + imagelocation);
+            } else {
+                System.out.println("file not Deleted :" + imagelocation);
+            }
+        }
+        db.execSQL("delete from picture_data where image_location='"+imagelocation+"';");
         db.close();
     }
 

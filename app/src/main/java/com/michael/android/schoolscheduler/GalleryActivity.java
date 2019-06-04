@@ -4,32 +4,21 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.provider.OpenableColumns;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 public class GalleryActivity extends AppCompatActivity {
 
@@ -74,13 +63,14 @@ public class GalleryActivity extends AppCompatActivity {
         PictureDBHelper pictureDBHelper = new PictureDBHelper(this);
         pictureDB = pictureDBHelper.getWritableDatabase();
         Cursor c1 = pictureDB.rawQuery("select subject, image_location, image_date from picture_data", null);
-
+        Log.d("Image Count", String.valueOf(c1.getCount()));
         c1.moveToFirst();
-        while(c1.moveToNext()){
-            if(!dateList.contains(c1.getString(2))&& c1.getString(0).equals(subjectName)){//해당과목중에 날짜리스트중 추가가 안되어있으면
+        do{
+            if(c1.getCount()>0 && !dateList.contains(c1.getString(2)) && c1.getString(0) != null && c1.getString(0).equals(subjectName)){//해당과목중에 날짜리스트중 추가가 안되어있으면
                 dateList.add(c1.getString(2));
             }
-        }
+        }while(c1.moveToNext());
+        Log.d("Date List Size", String.valueOf(dateList.size()));
         c1.moveToFirst();
         for(int i=0; i<dateList.size(); i++){
             subList = new ArrayList<String>();
@@ -91,19 +81,8 @@ public class GalleryActivity extends AppCompatActivity {
             }
             GalleryItem item = new GalleryItem(subList, dateList.get(i));
             list.add(item);
+            c2.close();
         }
-//        for(int i=0; i<list.size()-1; i++){
-//            GalleryItem recentItem = list.get(i);
-//            int days = MainActivity.dateTOint(Integer.parseInt(recentItem.getDate().substring(0, 4)), Integer.parseInt(recentItem.getDate().substring(5, 7), Integer.parseInt(recentItem.getDate().substring(8, 10))));
-//            for(int j=i+1; j<list.size(); j++){
-//                int days2 = MainActivity.dateTOint(Integer.parseInt(list.get(j).getDate().substring(0, 4)), Integer.parseInt(list.get(j).getDate().substring(5, 7), Integer.parseInt(list.get(j).getDate().substring(8, 10));
-//                if(days<days2){
-//                    recentItem = list.get(j);
-//                    list.set(j, list.get(i));
-//                    list.set(i, recentItem);
-//                }
-//            }
-//        }
 
         galleryList = (RecyclerView) findViewById(R.id.gallery_list);
         galleryList.setHasFixedSize(false);

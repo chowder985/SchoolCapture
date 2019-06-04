@@ -1,28 +1,18 @@
 package com.michael.android.schoolscheduler;
 
 import android.app.DatePickerDialog;
-import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 public class ExceptionHandler extends AppCompatActivity implements View.OnClickListener {
@@ -122,7 +112,7 @@ public class ExceptionHandler extends AppCompatActivity implements View.OnClickL
             startdate = dateTOint(start.getText().toString());
             enddate = dateTOint(end.getText().toString());
 
-            String insertdate = "not cleared";
+            String insertdate;
             int i = startdate;
             boolean check;
             do{
