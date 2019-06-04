@@ -78,7 +78,7 @@ public class HorizontalRecyclerAdapter extends RecyclerView.Adapter<RecyclerView
                         .apply(new RequestOptions()
                                 .placeholder(R.mipmap.ic_launcher)
                                 .override(245, 245)
-                                .fitCenter()
+                                .centerCrop()
                         )
                         .into(cellViewHolder.mImageView);
 //                File imgFile = new File(mList.get(i));

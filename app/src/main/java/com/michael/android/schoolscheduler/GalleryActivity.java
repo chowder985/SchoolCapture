@@ -146,12 +146,6 @@ public class GalleryActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.ascend:
-
-                return true;
-            case R.id.descend:
-
-                return true;
             case R.id.detail:
                 Intent intent = new Intent(this, SubjectDetailActivity.class);
                 intent.putExtra("subject_name", subjectName);
